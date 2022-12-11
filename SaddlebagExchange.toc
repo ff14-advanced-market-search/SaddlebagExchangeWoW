@@ -1,0 +1,6 @@
+## Interface: 100002
+## Title: Saddlebag Exchange
+## Author: John Doe
+## Version: 1.0
+
+main.lua
