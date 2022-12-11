@@ -1,9 +1,9 @@
--- message('My first addon!')
+message('Thanks for testing out Saddlebag Exchange WoW Undercut alerts! Use the commands: \n/sbex, /saddlebag or /saddlebagexchange')
 
-SLASH_HELLOWORLD1, SLASH_HELLOWORLD2 = '/hiw', '/hellow';
+SLASH_SADDLEBAG1, SLASH_SADDLEBAG2, SLASH_SADDLEBAG3 = '/sbex', '/saddlebag', '/saddlebagexchange';
 local function handler(msg, editBox)
     if msg == 'help' then
-        message('Go to the auction house, view your auctions and then run /hiw')
+        message('Go to the auction house, view your auctions and then run /sbex')
     else
         -- print("test")
         ownedAuctions=C_AuctionHouse.GetOwnedAuctions();
@@ -49,8 +49,9 @@ local function handler(msg, editBox)
             output = output .. "}\n"
             print(output)
         else
+            print("ERROR! Make sure you are at the auction house looking at your auctions before you run /sbex")
             print("{}")
         end
     end
 end
-SlashCmdList["HELLOWORLD"] = handler; -- Also a valid assignment strategy
+SlashCmdList["SADDLEBAG"] = handler; -- Also a valid assignment strategy
