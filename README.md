@@ -4,7 +4,7 @@
 
 1. Place this in the `World of Warcraft\_retail_\Interface\AddOns\` folder to load the addon into your game.
 2. Go to the auction house and view your active auctions
-3. Run the slash command `/hiw`
+3. Run the slash command `/sbex`
 
 Output example needed for the discord bot:
 
