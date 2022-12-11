@@ -20,6 +20,9 @@ local function handler(msg, editBox)
             -- loop through auctions
             output = "\n"
             output = output .. "{\n"
+            output = output .. '    "homeRealmName": "' .. tostring(GetRealmName()) .. '",\n'
+
+            output = output .. '    "region": "' .. GetCurrentRegionName() .. '",\n'
             output = output .. '    "user_auctions": ['
             for k, v in pairs(ownedAuctions) do
 

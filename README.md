@@ -10,13 +10,13 @@ Output example needed for the discord bot:
 
 ```json
 {
-    "homeRealmId": 3678,
-    "region": "NA",
+    "homeRealmName": "Thrall",
+    "region": "US",
     "user_auctions": [
-        {"itemID": 52181,"price": 7720},
-        {"itemID": 4500,"price": 97400},
-        {"itemID": 173242, "price": 900000},
-        {"itemID": 189145,"price": 22003000}
+        {"itemID": 194683,"price": 39900},
+        {"itemID": 193210,"price": 54200}
     ]
 }
 ```
+
+4. Then you will copy that json output to your clipboard and send it to the discord bot.  We recommend the [Chat Copy Paste addon](https://www.curseforge.com/wow/addons/chat-copy-paste) to make this easy.
