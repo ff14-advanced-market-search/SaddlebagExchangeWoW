@@ -2,7 +2,9 @@
 
 ## WIP
 
-1. Place this in the `World of Warcraft\_retail_\Interface\AddOns\` folder to load the addon into your game.
+To download the addon clone the repo locally or [download it as a zip file](https://github.com/ff14-advanced-market-search/SaddlebagExchangeWoW/archive/refs/heads/main.zip).
+
+1. Copy the `SaddlebagExchangeWoW` folder to your `World of Warcraft\_retail_\Interface\AddOns\` folder to load the addon into your game. Make sure the name of the folder is `SaddlebagExchangeWoW` and not `SaddlebagExchangeWoW-main` if you downloaded as a zip file.
 2. Go to the auction house and view your active auctions
 3. Click the `Get Undercut Alert Data` button that pops up when you view the auction house or run the slash command `/sbex`.
 
