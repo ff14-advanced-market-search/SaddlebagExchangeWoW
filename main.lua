@@ -63,41 +63,49 @@ SlashCmdList["SADDLEBAG"] = handler; -- Also a valid assignment strategy
 -- easy button system
 local function auctionButton()
     -- button for function
-    local b = CreateFrame("Button", "MyButton", UIParent, "UIPanelButtonTemplate")
-    local editBox = CreateFrame("EditBox", nil, UIParent)
+    local wrapper = CreateFrame("Frame", nil, UIParent, "ButtonFrameTemplate")
+    ButtonFrameTemplate_HidePortrait(wrapper)
+    ButtonFrameTemplate_HideButtonBar(wrapper)
+    wrapper:SetSize(300, 400)
+    wrapper:SetPoint("CENTER", 100, 0)
+
+    local b = CreateFrame("Button", "MyButton", wrapper, "UIPanelButtonTemplate")
+    local editBox = CreateFrame("EditBox", nil, wrapper)
     b:SetSize(180,22) -- width, height
     b:SetText("Get Undercut Alert Data")
     -- center is fine for now, but need to pin to auction house frame https://wowwiki-archive.fandom.com/wiki/API_Region_SetPoint
-    b:SetPoint("CENTER")
+    b:SetPoint("TOP", 0, -25)
     b:SetScript("OnClick", function()
         output = handler()
 
-        editBox:SetSize(200, 200) -- 200px by 200px
+        editBox:SetSize(250, 200) -- 200px by 200px
         editBox:SetFontObject("GameFontNormal") -- set it to the default game font, a small yellow one
-        editBox:SetPoint("CENTER", 0, -100) -- put it in the middle of the screen
+        editBox:SetPoint("CENTER") -- put it in the middle of the screen
         editBox:SetText(output) -- some text
         editBox:SetMultiLine(true)
         editBox:Show() -- when you want the user to see the editbox and copy from it
     end)
 
-    -- button to hide the other button
-    local b2 = CreateFrame("Button", "MyButton", UIParent, "UIPanelButtonTemplate")
-    b2:SetSize(180,22) -- width, height
-    b2:SetText("Hide Button")
-    -- center is fine for now, but need to pin to auction house frame https://wowwiki-archive.fandom.com/wiki/API_Region_SetPoint
-    b2:SetPoint("CENTER", 0, -25)
-    b2:SetScript("OnClick", function()
-        b:Hide()
-        b2:Hide()
-        editBox:Hide()
-    end)
+    -- -- button to hide the other button
+    -- local b2 = CreateFrame("Button", "MyButton", wrapper, "UIPanelButtonTemplate")
+    -- b2:SetSize(180,22) -- width, height
+    -- b2:SetText("Hide Button")
+    -- -- center is fine for now, but need to pin to auction house frame https://wowwiki-archive.fandom.com/wiki/API_Region_SetPoint
+    -- b2:SetPoint("BOTTOM")
+    -- b2:SetScript("OnClick", function()
+    --     b:Hide()
+    --     b2:Hide()
+    --     editBox:Hide()
+    --     wrapper:Hide()
+    -- end)
 
     -- auto close buttons if auction house is closed
     b:RegisterEvent("AUCTION_HOUSE_CLOSED")
     b:SetScript("OnEvent", function()
         b:Hide()
-        b2:Hide()
+        -- b2:Hide()
         editBox:Hide()
+        wrapper:Hide()
     end)
 
 end
