@@ -6,7 +6,7 @@ local function handler(msg, editBox)
         message('Go to the auction house, view your auctions and then click the pop up button or run /sbex')
     else
         ownedAuctions=C_AuctionHouse.GetOwnedAuctions();
-        print("Found", table.maxn(ownedAuctions), "active auctions.")
+        print("Found", table.maxn(ownedAuctions), " auctions.")
         if (table.maxn(ownedAuctions) > 0)
         then
 
@@ -50,9 +50,11 @@ local function handler(msg, editBox)
             output = output .. "\n    ]\n"
             output = output .. "}\n"
             print(output)
+            return output
         else
             print("ERROR! Make sure you are at the auction house looking at your auctions before you click the button or run /sbex")
             print("{}")
+            return "{}"
         end
     end
 end
@@ -62,14 +64,20 @@ SlashCmdList["SADDLEBAG"] = handler; -- Also a valid assignment strategy
 local function auctionButton()
     -- button for function
     local b = CreateFrame("Button", "MyButton", UIParent, "UIPanelButtonTemplate")
+    local editBox = CreateFrame("EditBox", nil, UIParent)
     b:SetSize(180,22) -- width, height
     b:SetText("Get Undercut Alert Data")
     -- center is fine for now, but need to pin to auction house frame https://wowwiki-archive.fandom.com/wiki/API_Region_SetPoint
     b:SetPoint("CENTER")
     b:SetScript("OnClick", function()
-        handler()
-        -- easy way to fix this is just close it after you get the data
-        -- b:Hide()
+        output = handler()
+
+        editBox:SetSize(200, 200) -- 200px by 200px
+        editBox:SetFontObject("GameFontNormal") -- set it to the default game font, a small yellow one
+        editBox:SetPoint("CENTER", 0, -100) -- put it in the middle of the screen
+        editBox:SetText(output) -- some text
+        editBox:SetMultiLine(true)
+        editBox:Show() -- when you want the user to see the editbox and copy from it
     end)
 
     -- button to hide the other button
@@ -81,6 +89,7 @@ local function auctionButton()
     b2:SetScript("OnClick", function()
         b:Hide()
         b2:Hide()
+        editBox:Hide()
     end)
 
     -- auto close buttons if auction house is closed
@@ -88,6 +97,7 @@ local function auctionButton()
     b:SetScript("OnEvent", function()
         b:Hide()
         b2:Hide()
+        editBox:Hide()
     end)
 
 end
