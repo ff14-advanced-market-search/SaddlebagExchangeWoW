@@ -69,6 +69,20 @@ local function auctionButton()
     wrapper:SetSize(300, 400)
     wrapper:SetPoint("CENTER", 100, 0)
 
+    -- https://wowpedia.fandom.com/wiki/Making_draggable_frames
+    wrapper:SetMovable(true)
+    wrapper:EnableMouse(true)
+    wrapper:RegisterForDrag("LeftButton")
+    wrapper:SetScript("OnDragStart", function(self, button)
+        self:StartMoving()
+        print("OnDragStart", button)
+    end)
+    wrapper:SetScript("OnDragStop", function(self)
+        self:StopMovingOrSizing()
+        print("OnDragStop")
+    end)
+
+    -- make buttons
     local b = CreateFrame("Button", "MyButton", wrapper, "UIPanelButtonTemplate")
     local editBox = CreateFrame("EditBox", nil, wrapper)
     b:SetSize(180,22) -- width, height
