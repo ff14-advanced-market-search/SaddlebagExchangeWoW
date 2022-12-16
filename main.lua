@@ -40,8 +40,11 @@ local function handler(msg, editBox)
                 -- print("itemID found!", v["itemKey"]["itemID"])
                 -- print("price found!", v["buyoutAmount"])
 
-                item_data = '\n        {"itemID": ' .. tostring(v["itemKey"]["itemID"]) .. ',"price": '.. tostring(v["buyoutAmount"]) .. '},'
-                output = output .. item_data
+                -- 0 if listed, 1 if sold
+                if v["status"] == 0 then
+                    item_data = '\n        {"itemID": ' .. tostring(v["itemKey"]["itemID"]) .. ',"price": '.. tostring(v["buyoutAmount"]) .. '},'
+                    output = output .. item_data
+                end
             end
             output = output:sub(1, -2)
             output = output .. "\n    ]\n"
