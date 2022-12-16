@@ -1,5 +1,7 @@
 # wow-addon
 
+https://www.curseforge.com/wow/addons/saddlebag-exchange
+
 ## WIP
 
 To download the addon clone the repo locally or [download it as a zip file](https://github.com/ff14-advanced-market-search/SaddlebagExchangeWoW/archive/refs/heads/main.zip).
