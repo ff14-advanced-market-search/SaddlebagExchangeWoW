@@ -2,6 +2,9 @@
 
 https://www.curseforge.com/wow/addons/saddlebag-exchange
 
+## Data Output Example
+![image](https://user-images.githubusercontent.com/17516896/208214910-1e0a06b4-07cf-4847-94f5-1456f7f1db34.png)
+
 ## WIP
 
 To download the addon clone the repo locally or [download it as a zip file](https://github.com/ff14-advanced-market-search/SaddlebagExchangeWoW/archive/refs/heads/main.zip).
@@ -24,3 +27,4 @@ Json data similar to the following will be printed to your chat. This is needed 
 ```
 
 4. Then you will copy that json output to your clipboard and send it to the discord bot.  We recommend the [Chat Copy Paste addon](https://www.curseforge.com/wow/addons/chat-copy-paste) to make this easy.
+
