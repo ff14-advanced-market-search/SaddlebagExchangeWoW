@@ -6,8 +6,17 @@ local function handler(msg, editBox)
         message('Go to the auction house, view your auctions and then click the pop up button or run /sbex')
     else
         ownedAuctions=C_AuctionHouse.GetOwnedAuctions();
-        print("Found", table.maxn(ownedAuctions), " auctions.")
-        if (table.maxn(ownedAuctions) > 0)
+        print("Found", table.maxn(ownedAuctions), "auctions.")
+        -- find active auctions
+        active_auctions=0
+        for k, v in pairs(ownedAuctions) do
+            if v["status"] == 0 then
+                active_auctions=active_auctions+1
+            end
+        end
+        print("Found", tostring(active_auctions), "active auctions.")
+        -- get undercut if active auctions found
+        if (active_auctions > 0)
         then
 
             -- gets the auction id
@@ -66,7 +75,7 @@ local function auctionButton()
     local wrapper = CreateFrame("Frame", nil, UIParent, "ButtonFrameTemplate")
     ButtonFrameTemplate_HidePortrait(wrapper)
     ButtonFrameTemplate_HideButtonBar(wrapper)
-    wrapper:SetSize(300, 400)
+    wrapper:SetSize(380, 400)
     wrapper:SetPoint("CENTER", 100, 0)
 
     -- https://wowpedia.fandom.com/wiki/Making_draggable_frames
@@ -92,9 +101,9 @@ local function auctionButton()
     b:SetScript("OnClick", function()
         output = handler()
 
-        editBox:SetSize(250, 200) -- 200px by 200px
+        editBox:SetSize(350, 200) -- 200px by 200px
         editBox:SetFontObject("GameFontNormal") -- set it to the default game font, a small yellow one
-        editBox:SetPoint("CENTER") -- put it in the middle of the screen
+        editBox:SetPoint("CENTER", 25, 0) -- put it in the middle of the screen
         editBox:SetText(output) -- some text
         editBox:SetMultiLine(true)
         editBox:Show() -- when you want the user to see the editbox and copy from it
