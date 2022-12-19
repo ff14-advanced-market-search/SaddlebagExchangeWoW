@@ -7,6 +7,7 @@ local function handler(msg, editBox)
     else
         ownedAuctions=C_AuctionHouse.GetOwnedAuctions();
         print("Found", table.maxn(ownedAuctions), "auctions.")
+
         -- find active auctions
         active_auctions=0
         for k, v in pairs(ownedAuctions) do
@@ -15,6 +16,24 @@ local function handler(msg, editBox)
             end
         end
         print("Found", tostring(active_auctions), "active auctions.")
+
+        -- delete duplicate entries
+        local seen = {}
+        local clean_ownedAuctions = {}
+        for index,item in ipairs(ownedAuctions) do
+            -- skip sold auctions
+            if item["status"] == 0 then
+                kv_str = tostring(item["itemKey"]["itemID"]) .. "_" .. tostring(item["buyoutAmount"])
+                if seen[kv_str] then
+                    table.remove(ownedAuctions, index)
+                else
+                    -- print(kv_str)
+                    seen[kv_str] = true
+                    clean_ownedAuctions[index] = item
+                end
+            end
+        end
+
         -- get undercut if active auctions found
         if (active_auctions > 0)
         then
@@ -32,15 +51,15 @@ local function handler(msg, editBox)
             output = output .. '    "region": "' .. GetCurrentRegionName() .. '",\n'
 
             output = output .. '    "user_auctions": ['
-            for k, v in pairs(ownedAuctions) do
+            for k, v in pairs(clean_ownedAuctions) do
 
-                -- print('======')
+                -- print('===view auction keys===')
                 -- print("auction keys")
                 -- for i, j in pairs(v) do
                 --     print(i)
                 -- end
 
-                -- print('-----')
+                -- print('---view itemKey keys---')
                 -- print("itemKey info")
                 -- for i, j in pairs(v["itemKey"]) do
                 --     print(i)
