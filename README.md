@@ -2,6 +2,10 @@
 
 https://www.curseforge.com/wow/addons/saddlebag-exchange
 
+# wow api call guide
+
+https://github.com/ff14-advanced-market-search/saddlebag-with-pockets/wiki/API-Call-Guide:-Part-2-(WoW-API)
+
 ## Addon JSON Output Example
 ![image](https://user-images.githubusercontent.com/17516896/208216286-2716b14a-8548-4334-ab5d-17de895938ca.png)
 
