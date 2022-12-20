@@ -154,9 +154,42 @@ local function auctionButton()
 
 end
 
+-- easy button system
+local function addonButton()
+    local addonButton = CreateFrame("Button", "MyButton", UIParent, "UIPanelButtonTemplate")
+    addonButton:SetSize(180,22) -- width, height
+    addonButton:SetText("Open Saddlebag Exchange")
+    -- center is fine for now, but need to pin to auction house frame https://wowwiki-archive.fandom.com/wiki/API_Region_SetPoint
+    addonButton:SetPoint("CENTER", 0, 220)
+
+    -- make moveable
+    addonButton:SetMovable(true)
+    addonButton:EnableMouse(true)
+    addonButton:RegisterForDrag("LeftButton")
+    addonButton:SetScript("OnDragStart", function(self, button)
+        self:StartMoving()
+        print("OnDragStart", button)
+    end)
+    addonButton:SetScript("OnDragStop", function(self)
+        self:StopMovingOrSizing()
+        print("OnDragStop")
+    end)
+
+    -- open main window on click
+    addonButton:SetScript("OnClick", function()
+        auctionButton()
+        -- addonButton:Hide()
+    end)
+
+    addonButton:RegisterEvent("AUCTION_HOUSE_CLOSED")
+    addonButton:SetScript("OnEvent", function()
+        addonButton:Hide()
+    end)
+end
+
 -- https://wowwiki-archive.fandom.com/wiki/Events/Names
 local buttonPopUpFrame = CreateFrame("Frame")
 buttonPopUpFrame:RegisterEvent("AUCTION_HOUSE_SHOW")
 buttonPopUpFrame:SetScript("OnEvent", function()
-    auctionButton()
+    addonButton()
 end)
