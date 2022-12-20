@@ -19,15 +19,25 @@ To download the addon clone the repo locally or [download it as a zip file](http
 2. Go to the auction house and view your active auctions
 3. Click the `Get Undercut Alert Data` button that pops up when you view the auction house or run the slash command `/sbex`.
 
-Json data similar to the following will be printed to your chat. This is needed for the discord bot to register for undercut alerts:
+Json data similar to the following will be printed into the saddlebag popup window:
+
+![image](https://user-images.githubusercontent.com/17516896/208216286-2716b14a-8548-4334-ab5d-17de895938ca.png)
+
+What you copy to your clipboard should look like this:
 
 ```json
 {
     "homeRealmName": "Thrall",
     "region": "US",
     "user_auctions": [
-        {"itemID": 194683,"price": 39900},
-        {"itemID": 193210,"price": 54200}
+        {"itemID": 194275,"price": 200000000},
+        {"itemID": 197968,"price": 299990000},
+        {"itemID": 194276,"price": 399990000},
+        {"itemID": 194272,"price": 399990000},
+        {"itemID": 192097,"price": 57500},
+        {"itemID": 194278,"price": 389990000},
+        {"itemID": 194274,"price": 400000000},
+        {"itemID": 194312,"price": 48889900}
     ]
 }
 ```
