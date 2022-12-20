@@ -11,6 +11,8 @@ https://www.curseforge.com/wow/addons/saddlebag-exchange
 
 ## Descirption and Instructions
 
+We are currently working on fixing our curseforge file upload, hold tight and try a direct download for now if you want to try it right now!
+
 To download the addon clone the repo locally or [download it as a zip file](https://github.com/ff14-advanced-market-search/SaddlebagExchangeWoW/archive/refs/heads/main.zip).
 
 1. Copy the `SaddlebagExchangeWoW` folder to your `World of Warcraft\_retail_\Interface\AddOns\` folder to load the addon into your game. Make sure the name of the folder is `SaddlebagExchangeWoW` and not `SaddlebagExchangeWoW-main` if you downloaded as a zip file.
