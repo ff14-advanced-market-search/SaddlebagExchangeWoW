@@ -5,8 +5,11 @@ https://www.curseforge.com/wow/addons/saddlebag-exchange
 ## Data Output Example
 ![image](https://user-images.githubusercontent.com/17516896/208216286-2716b14a-8548-4334-ab5d-17de895938ca.png)
 
+## Discord Alert Example:
 
-## WIP
+<img width="544" alt="Screen Shot 2022-12-20 at 12 30 41 PM" src="https://user-images.githubusercontent.com/17516896/208729833-c89b6853-301d-4415-b67a-79b2507e1b97.png">
+
+## Descirption and Instructions
 
 To download the addon clone the repo locally or [download it as a zip file](https://github.com/ff14-advanced-market-search/SaddlebagExchangeWoW/archive/refs/heads/main.zip).
 
