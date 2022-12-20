@@ -1,6 +1,8 @@
 ## Interface: 100002
 ## Title: Saddlebag Exchange
-## Author: John Doe
-## Version: 1.0
+## Author: indopan#7191
+## Version: 0.0.1
+
+## X-Curse-Project-ID: 738707
 
 main.lua
