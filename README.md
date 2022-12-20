@@ -2,7 +2,7 @@
 
 https://www.curseforge.com/wow/addons/saddlebag-exchange
 
-## Data Output Example
+## Addon JSON Output Example
 ![image](https://user-images.githubusercontent.com/17516896/208216286-2716b14a-8548-4334-ab5d-17de895938ca.png)
 
 ## Discord Alert Example:
