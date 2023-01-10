@@ -106,11 +106,11 @@ local function auctionButton()
     wrapper:RegisterForDrag("LeftButton")
     wrapper:SetScript("OnDragStart", function(self, button)
         self:StartMoving()
-        print("OnDragStart", button)
+        -- print("OnDragStart", button)
     end)
     wrapper:SetScript("OnDragStop", function(self)
         self:StopMovingOrSizing()
-        print("OnDragStop")
+        -- print("OnDragStop")
     end)
 
     -- make buttons
@@ -158,10 +158,11 @@ end
 -- easy button system
 local function addonButton()
     local addonButton = CreateFrame("Button", "MyButton", UIParent, "UIPanelButtonTemplate")
+	addonButton:SetFrameStrata("HIGH")
     addonButton:SetSize(180,22) -- width, height
     addonButton:SetText("Open Saddlebag Exchange")
     -- center is fine for now, but need to pin to auction house frame https://wowwiki-archive.fandom.com/wiki/API_Region_SetPoint
-    addonButton:SetPoint("CENTER", 0, 220)
+    addonButton:SetPoint("TOPRIGHT", "AuctionHouseFrame", "TOPRIGHT", -30, 0)
 
     -- make moveable
     addonButton:SetMovable(true)
@@ -169,11 +170,11 @@ local function addonButton()
     addonButton:RegisterForDrag("LeftButton")
     addonButton:SetScript("OnDragStart", function(self, button)
         self:StartMoving()
-        print("OnDragStart", button)
+        -- print("OnDragStart", button)
     end)
     addonButton:SetScript("OnDragStop", function(self)
         self:StopMovingOrSizing()
-        print("OnDragStop")
+        -- print("OnDragStop")
     end)
 
     -- open main window on click
