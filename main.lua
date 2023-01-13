@@ -1,9 +1,53 @@
 -- Now on Curseforge!
 
--- message('Thanks for testing out Saddlebag Exchange WoW Undercut alerts! Use the commands: \n/sbex, /saddlebag or /saddlebagexchange')
+-- message('Thanks for testing out Saddlebag Exchange WoW Undercut alerts! Use the commands: \n/sbex, /Saddlebag or /Saddlebagexchange')
+local _, Saddlebag = ...
 
-SLASH_SADDLEBAG1, SLASH_SADDLEBAG2, SLASH_SADDLEBAG3 = '/sbex', '/saddlebag', '/saddlebagexchange';
-local function handler(msg, editBox)
+Saddlebag = LibStub("AceAddon-3.0"):NewAddon(Saddlebag, "Saddlebag", "AceConsole-3.0", "AceEvent-3.0")
+LibRealmInfo = LibStub("LibRealmInfo")
+
+local SaddlebagFrame = nil
+
+-- SLASH_SADDLEBAG1, SLASH_SADDLEBAG2, SLASH_SADDLEBAG3 = '/sbex', '/Saddlebag', '/Saddlebagexchange';
+function Saddlebag:OnInitialize()
+    -- init databroker
+    self.db = LibStub("AceDB-3.0"):New("SaddlebagDB", {
+      profile = {
+        minimap = {
+          hide = false,
+        },
+        frame = {
+          point = "CENTER",
+          relativeFrame = nil,
+          relativePoint = "CENTER",
+          ofsx = 0,
+          ofsy = 0,
+          width = 750,
+          height = 400,
+        },
+      },
+    });
+    -- LibDBIcon:Register("Saddlebag Exchange", SaddlebagLDB, self.db.profile.minimap)
+    -- Saddlebag:UpdateMinimapButton()
+  
+    Saddlebag:RegisterChatCommand('sbex', 'HandleChatCommand')
+end
+
+function Saddlebag:HandleChatCommand(input)
+    local args = {strsplit(' ', input)}
+
+    for _, arg in ipairs(args) do
+        if arg == 'help' then
+            DEFAULT_CHAT_FRAME:AddMessage(
+                "Saddlebag: NYI"
+            )
+            return
+        end
+    end
+
+    self:handler()
+
+function Saddlebag:handler(msg, SaddlebagEditBox)
     if msg == 'help' then
         message('Go to the auction house, view your auctions and then click the pop up button or run /sbex')
     else
@@ -80,8 +124,10 @@ local function handler(msg, editBox)
             output = output:sub(1, -2)
             output = output .. "\n    ]\n"
             output = output .. "}\n"
-            print(output)
-            return output
+            -- print(output)
+            -- return output
+            local af = Saddlebag:auctionButton(output)
+            af:Show()
         else
             print("ERROR! Make sure you are at the auction house looking at your auctions before you click the button or run /sbex")
             print("{}")
@@ -92,71 +138,106 @@ end
 SlashCmdList["SADDLEBAG"] = handler; -- Also a valid assignment strategy
 
 -- easy button system
-local function auctionButton()
-    -- button for function
-    local wrapper = CreateFrame("Frame", nil, UIParent, "ButtonFrameTemplate")
-    ButtonFrameTemplate_HidePortrait(wrapper)
-    ButtonFrameTemplate_HideButtonBar(wrapper)
-    wrapper:SetSize(380, 400)
-    wrapper:SetPoint("CENTER", 100, 0)
+function Saddlebag:auctionButton(text)
+    if not SaddlebagFrame then
+        -- MainFrame
+        local frameConfig = self.db.profile.frame
+        local f = CreateFrame("Frame", "SaddlebagFrame", UIParent, "DialogBoxFrame")
+        f:ClearAllPoints()
+        -- load position from local DB
+        f:SetPoint(
+            frameConfig.point,
+            frameConfig.relativeFrame,
+            frameConfig.relativePoint,
+            frameConfig.ofsx,
+            frameConfig.ofsy
+        )
+        f:SetSize(frameConfig.width, frameConfig.height)
+        f:SetBackdrop({
+            bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+            edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
+            edgeSize = 16,
+            insets = { left = 8, right = 8, top = 8, bottom = 8},
+        })
+        f:SetMovable(true)
+        f:SetClampedToScreen(true)
+        f:SetScript("OnMouseDown", function(self, button) -- luacheck: ignore
+            if button == "LeftButton" then
+                self:StartMoving()
+            end
+        end)
+        f:SetScript("OnMouseUp", function(self, _) --luacheck: ignore
+            self:StopMovingOrSizing()
+            -- save position between sessions
+            local point, relativeFrame, relativeTo, ofsx, ofsy = self:GetPoint()
+            frameConfig.point = point
+            frameConfig.relativeFrame = relativeFrame
+            frameConfig.relativePoint = relativeTo
+            frameConfig.ofsx = ofsx
+            frameConfig.ofsy = ofsy
+        end)
 
-    -- https://wowpedia.fandom.com/wiki/Making_draggable_frames
-    wrapper:SetMovable(true)
-    wrapper:EnableMouse(true)
-    wrapper:RegisterForDrag("LeftButton")
-    wrapper:SetScript("OnDragStart", function(self, button)
-        self:StartMoving()
-        -- print("OnDragStart", button)
+        -- scroll frame
+
+        local sf = CreateFrame("ScrollFrame", "SaddlebagScrollFrame", f, "UIPanelScrollFrameTemplate")
+        sf:SetPoint("LEFT", 16, 0)
+        sf:SetPoint("RIGHT", -32, 0)
+        sf:SetPoint("TOP", 0, 0)
+        sf:SetPoint("BOTTOM", SaddlebagFrameButton, "TOP", 0, 0)
+
+        -- edit box
+        local eb = CreateFrame("EditBox", "SaddlebagEditBox", SaddlebagScrollFrame)
+        eb:SetSize(sf:GetSize())
+        eb:SetMultiLine(true)
+        eb:SetAutoFocus(true)
+        eb:SetFontObject("ChatFontNormal")
+        eb:SetScript("OnEscapePressed", function() f:Hide() end)
+        sf:SetScrollChild(eb)
+
+            -- resizing
+    f:SetResizable(true)
+    if f.SetMinResize then
+      -- older function from shadowlands and before
+      -- Can remove when Dragonflight is in full swing
+      f:SetMinResize(150, 100)
+    else
+      -- new func for dragonflight
+      f:SetResizeBounds(150, 100, nil, nil)
+    end
+    local rb = CreateFrame("Button", "SaddlebagResizeButton", f)
+    rb:SetPoint("BOTTOMRIGHT", -6, 7)
+    rb:SetSize(16, 16)
+
+    rb:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
+    rb:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
+    rb:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
+
+    rb:SetScript("OnMouseDown", function(self, button) -- luacheck: ignore
+        if button == "LeftButton" then
+            f:StartSizing("BOTTOMRIGHT")
+            self:GetHighlightTexture():Hide() -- more noticeable
+        end
     end)
-    wrapper:SetScript("OnDragStop", function(self)
-        self:StopMovingOrSizing()
-        -- print("OnDragStop")
+    rb:SetScript("OnMouseUp", function(self, _) -- luacheck: ignore
+        f:StopMovingOrSizing()
+        self:GetHighlightTexture():Show()
+        eb:SetWidth(sf:GetWidth())
+
+        -- save size between sessions
+        frameConfig.width = f:GetWidth()
+        frameConfig.height = f:GetHeight()
     end)
 
-    -- make buttons
-    local b = CreateFrame("Button", "MyButton", wrapper, "UIPanelButtonTemplate")
-    local editBox = CreateFrame("EditBox", nil, wrapper)
-    b:SetSize(180,22) -- width, height
-    b:SetText("Get Undercut Alert Data")
-    -- center is fine for now, but need to pin to auction house frame https://wowwiki-archive.fandom.com/wiki/API_Region_SetPoint
-    b:SetPoint("TOP", 0, -25)
-    b:SetScript("OnClick", function()
-        output = handler()
-
-        editBox:SetSize(350, 200) -- 200px by 200px
-        editBox:SetFontObject("GameFontNormal") -- set it to the default game font, a small yellow one
-        editBox:SetPoint("CENTER", 25, 0) -- put it in the middle of the screen
-        editBox:SetText(output) -- some text
-        editBox:SetMultiLine(true)
-        editBox:Show() -- when you want the user to see the editbox and copy from it
-    end)
-
-    -- -- button to hide the other button
-    -- local b2 = CreateFrame("Button", "MyButton", wrapper, "UIPanelButtonTemplate")
-    -- b2:SetSize(180,22) -- width, height
-    -- b2:SetText("Hide Button")
-    -- -- center is fine for now, but need to pin to auction house frame https://wowwiki-archive.fandom.com/wiki/API_Region_SetPoint
-    -- b2:SetPoint("BOTTOM")
-    -- b2:SetScript("OnClick", function()
-    --     b:Hide()
-    --     b2:Hide()
-    --     editBox:Hide()
-    --     wrapper:Hide()
-    -- end)
-
-    -- auto close buttons if auction house is closed
-    b:RegisterEvent("AUCTION_HOUSE_CLOSED")
-    b:SetScript("OnEvent", function()
-        b:Hide()
-        -- b2:Hide()
-        editBox:Hide()
-        wrapper:Hide()
-    end)
+    SaddlebagFrame = f
+  end
+  SaddlebagEditBox:SetText(text)
+  SaddlebagEditBox:HighlightText()
+  return SaddlebagFrame
 
 end
 
 -- easy button system
-local function addonButton()
+function Saddlebag:addonButton()
     local addonButton = CreateFrame("Button", "MyButton", UIParent, "UIPanelButtonTemplate")
 	addonButton:SetFrameStrata("HIGH")
     addonButton:SetSize(180,22) -- width, height
@@ -179,7 +260,7 @@ local function addonButton()
 
     -- open main window on click
     addonButton:SetScript("OnClick", function()
-        auctionButton()
+        Saddlebag:handler()
         -- addonButton:Hide()
     end)
 
@@ -193,5 +274,5 @@ end
 local buttonPopUpFrame = CreateFrame("Frame")
 buttonPopUpFrame:RegisterEvent("AUCTION_HOUSE_SHOW")
 buttonPopUpFrame:SetScript("OnEvent", function()
-    addonButton()
+    Saddlebag:addonButton()
 end)
