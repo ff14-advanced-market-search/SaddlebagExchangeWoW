@@ -46,6 +46,7 @@ function Saddlebag:HandleChatCommand(input)
     end
 
     self:handler()
+end
 
 function Saddlebag:handler(msg, SaddlebagEditBox)
     if msg == 'help' then
