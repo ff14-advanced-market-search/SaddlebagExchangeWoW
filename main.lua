@@ -71,12 +71,15 @@ function Saddlebag:handler(msg, SaddlebagEditBox)
             -- skip sold auctions
             if item["status"] == 0 then
                 kv_str = tostring(item["itemKey"]["itemID"]) .. "_" .. tostring(item["buyoutAmount"])
-                if seen[kv_str] then
-                    table.remove(ownedAuctions, index)
-                else
+                local _, _, _, _, _, _, _, itemStackCount= GetItemInfo(item["itemKey"]["itemID"])
+                if itemStackCount == 1 then
+                    if seen[kv_str] then
+                        table.remove(ownedAuctions, index)
+                    else
                     -- print(kv_str)
-                    seen[kv_str] = true
-                    clean_ownedAuctions[index] = item
+                        seen[kv_str] = true
+                        clean_ownedAuctions[index] = item
+                    end
                 end
             end
         end
