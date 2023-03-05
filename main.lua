@@ -97,7 +97,7 @@ function Saddlebag:handler(msg, SaddlebagEditBox)
             -- loop through auctions
             output = "\n"
             output = output .. "{\n"
-            output = output .. '    "homeRealmName": "' .. tostring(GetRealmName()) .. '",\n'
+            output = output .. '    "homeRealmName": "' .. tostring(GetRealmID()) .. '",\n'
             output = output .. '    "region": "' .. GetCurrentRegionName() .. '",\n'
 
             output = output .. '    "user_auctions": ['
