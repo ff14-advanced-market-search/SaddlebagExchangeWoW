@@ -120,10 +120,16 @@ function Saddlebag:handler(msg, SaddlebagEditBox)
 
                 -- 0 if listed, 1 if sold
                 -- dont do 82800 for battle pets its all messy
-                if (v["status"] == 0) and (v["itemKey"]["itemID"] ~= 82800) and (v["itemKey"]["itemID"] >= 185000)  then
+                if (v["status"] == 0) and (v["itemKey"]["itemID"] ~= 82800) and (v["itemKey"]["itemID"] >= 185000)
+                then
                     item_data = '\n        {"itemID": ' .. tostring(v["itemKey"]["itemID"]) .. ',"price": '.. tostring(v["buyoutAmount"]) .. '},'
                     output = output .. item_data
+                -- elseif (v["status"] == 0) and (v["itemKey"]["itemID"] == 82800)
+                -- then
+                --     item_data = '\n        {"petID": ' .. tostring(v["itemKey"]["battlePetSpeciesID"]) .. ',"price": '.. tostring(v["buyoutAmount"]) .. '},'
+                --     output = output .. item_data
                 end
+
             end
             output = output:sub(1, -2)
             output = output .. "\n    ]\n"
