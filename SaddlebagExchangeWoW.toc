@@ -2,9 +2,9 @@
 ## Title: Saddlebag Exchange
 ## Notes: Constructs undercut alerts
 ## Author: indopan, Terise
-## Version: 10.0.0-02
+## Version: 10.1.0
 ## OptionalDependencies: Ace3, LibRealmInfo, LibDBIcon, LibDataBroker-1.1
-## SavedVariables: SimulationCraftDB
+## SavedVariables: SimulationCraftDB, UndercutJsonTable
 
 ## X-Curse-Project-ID: 738707
 

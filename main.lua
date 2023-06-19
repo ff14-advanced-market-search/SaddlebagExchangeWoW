@@ -45,7 +45,20 @@ function Saddlebag:HandleChatCommand(input)
         end
     end
 
-    self:handler()
+    self:showall()
+end
+
+function Saddlebag:showall(msg, SaddlebagEditBox)
+    local output = "["
+    for k, v in pairs(UndercutJsonTable) do
+        output = output .. v .. ","
+    end
+    -- remove last comma
+    output = output:sub(1, -2)
+    output = output .. "]"
+
+    local af = Saddlebag:auctionButton(output)
+    af:Show()
 end
 
 function Saddlebag:handler(msg, SaddlebagEditBox)
@@ -84,6 +97,13 @@ function Saddlebag:handler(msg, SaddlebagEditBox)
             end
         end
 
+        -- used as key in the table
+        playerName = UnitName("player") .. tostring(GetRealmID())
+        if (UndercutJsonTable == nil)
+        then
+            UndercutJsonTable = {}
+        end
+
         -- get undercut if active auctions found
         if (active_auctions > 0)
         then
@@ -95,8 +115,7 @@ function Saddlebag:handler(msg, SaddlebagEditBox)
             -- print(table.concat(ownedAuctions))
 
             -- loop through auctions
-            output = "\n"
-            output = output .. "{\n"
+            output = "{\n"
             output = output .. '    "homeRealmName": "' .. tostring(GetRealmID()) .. '",\n'
             output = output .. '    "region": "' .. GetCurrentRegionName() .. '",\n'
 
@@ -122,18 +141,21 @@ function Saddlebag:handler(msg, SaddlebagEditBox)
                 -- dont do 82800 for battle pets its all messy
                 if (v["status"] == 0) and (v["itemKey"]["itemID"] ~= 82800) and (v["itemKey"]["itemID"] >= 185000)
                 then
-                    item_data = '\n        {"itemID": ' .. tostring(v["itemKey"]["itemID"]) .. ',"price": '.. tostring(v["buyoutAmount"]) .. ',"auctionID": ' .. tostring(v["auctionID"]) ..'},'
+                    item_data = '\n        {"itemID": ' .. tostring(v["itemKey"]["itemID"]) .. ', "price": '.. tostring(v["buyoutAmount"])  .. ', "auctionID": '.. tostring(v["auctionID"]) .. '},'
                     output = output .. item_data
-                -- elseif (v["status"] == 0) and (v["itemKey"]["itemID"] == 82800)
-                -- then
-                --     item_data = '\n        {"petID": ' .. tostring(v["itemKey"]["battlePetSpeciesID"]) .. ',"price": '.. tostring(v["buyoutAmount"]) .. ',"auctionID": ' .. tostring(v["auctionID"]) .. '},'
-                --     output = output .. item_data
+                elseif (v["status"] == 0) and (v["itemKey"]["itemID"] == 82800)
+                then
+                    item_data = '\n        {"petID": ' .. tostring(v["itemKey"]["battlePetSpeciesID"]) .. ' ,"price": '.. tostring(v["buyoutAmount"]) .. ', "auctionID": '.. tostring(v["auctionID"]) .. '},'
+                    output = output .. item_data
                 end
 
             end
+            -- remove last comma
             output = output:sub(1, -2)
             output = output .. "\n    ]\n"
-            output = output .. "}\n"
+            output = output .. "}"
+            -- add to saved variable
+            UndercutJsonTable[playerName] = output
             -- print(output)
             -- return output
             local af = Saddlebag:auctionButton(output)
@@ -249,7 +271,7 @@ end
 -- easy button system
 function Saddlebag:addonButton()
     local addonButton = CreateFrame("Button", "MyButton", UIParent, "UIPanelButtonTemplate")
-	addonButton:SetFrameStrata("HIGH")
+    addonButton:SetFrameStrata("HIGH")
     addonButton:SetSize(180,22) -- width, height
     addonButton:SetText("Open Saddlebag Exchange")
     -- center is fine for now, but need to pin to auction house frame https://wowwiki-archive.fandom.com/wiki/API_Region_SetPoint
@@ -280,9 +302,43 @@ function Saddlebag:addonButton()
     end)
 end
 
+function Saddlebag:addonButton2()
+    local addonButton2 = CreateFrame("Button", "MyButton", UIParent, "UIPanelButtonTemplate")
+    addonButton2:SetFrameStrata("HIGH")
+    addonButton2:SetSize(180,22) -- width, height
+    addonButton2:SetText("View Full Undercut Data")
+    -- center is fine for now, but need to pin to auction house frame https://wowwiki-archive.fandom.com/wiki/API_Region_SetPoint
+    addonButton2:SetPoint("TOPRIGHT", "AuctionHouseFrame", "TOPRIGHT", -240, 0)
+
+    -- make moveable
+    addonButton2:SetMovable(true)
+    addonButton2:EnableMouse(true)
+    addonButton2:RegisterForDrag("LeftButton")
+    addonButton2:SetScript("OnDragStart", function(self, button)
+        self:StartMoving()
+        -- print("OnDragStart", button)
+    end)
+    addonButton2:SetScript("OnDragStop", function(self)
+        self:StopMovingOrSizing()
+        -- print("OnDragStop")
+    end)
+
+    -- open main window on click
+    addonButton2:SetScript("OnClick", function()
+        Saddlebag:showall()
+        -- addonButton2:Hide()
+    end)
+
+    addonButton2:RegisterEvent("AUCTION_HOUSE_CLOSED")
+    addonButton2:SetScript("OnEvent", function()
+        addonButton2:Hide()
+    end)
+end
+
 -- https://wowwiki-archive.fandom.com/wiki/Events/Names
 local buttonPopUpFrame = CreateFrame("Frame")
 buttonPopUpFrame:RegisterEvent("AUCTION_HOUSE_SHOW")
 buttonPopUpFrame:SetScript("OnEvent", function()
     Saddlebag:addonButton()
+    Saddlebag:addonButton2()
 end)
