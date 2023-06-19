@@ -122,21 +122,27 @@ function Saddlebag:handler(msg, SaddlebagEditBox)
                 -- dont do 82800 for battle pets its all messy
                 if (v["status"] == 0) and (v["itemKey"]["itemID"] ~= 82800) and (v["itemKey"]["itemID"] >= 185000)
                 then
-                    item_data = '\n        {"itemID": ' .. tostring(v["itemKey"]["itemID"]) .. ',"price": '.. tostring(v["buyoutAmount"]) .. ',"auctionID": ' .. tostring(v["auctionID"]) ..'},'
+                    item_data = '\n        {"itemID": ' .. tostring(v["itemKey"]["itemID"]) .. ',"price": '.. tostring(v["buyoutAmount"])  .. ',"auctionID": '.. tostring(v["auctionID"]) .. '},'
                     output = output .. item_data
-                -- elseif (v["status"] == 0) and (v["itemKey"]["itemID"] == 82800)
-                -- then
-                --     item_data = '\n        {"petID": ' .. tostring(v["itemKey"]["battlePetSpeciesID"]) .. ',"price": '.. tostring(v["buyoutAmount"]) .. ',"auctionID": ' .. tostring(v["auctionID"]) .. '},'
-                --     output = output .. item_data
+                elseif (v["status"] == 0) and (v["itemKey"]["itemID"] == 82800)
+                then
+                    item_data = '\n        {"petID": ' .. tostring(v["itemKey"]["battlePetSpeciesID"]) .. ',"price": '.. tostring(v["buyoutAmount"]) .. ',"auctionID": '.. tostring(v["auctionID"]) .. '},'
+                    output = output .. item_data
                 end
 
             end
             output = output:sub(1, -2)
             output = output .. "\n    ]\n"
             output = output .. "}\n"
+            -- add to saved variable
+            CharacterUndercutJson = output
             -- print(output)
             -- return output
             local af = Saddlebag:auctionButton(output)
+            af:Show()
+        elseif (CharacterUndercutJson ~= nil)
+        then
+            local af = Saddlebag:auctionButton(CharacterUndercutJson)
             af:Show()
         else
             print("ERROR! Make sure you are at the auction house looking at your auctions before you click the button or run /sbex")
@@ -249,7 +255,7 @@ end
 -- easy button system
 function Saddlebag:addonButton()
     local addonButton = CreateFrame("Button", "MyButton", UIParent, "UIPanelButtonTemplate")
-	addonButton:SetFrameStrata("HIGH")
+    addonButton:SetFrameStrata("HIGH")
     addonButton:SetSize(180,22) -- width, height
     addonButton:SetText("Open Saddlebag Exchange")
     -- center is fine for now, but need to pin to auction house frame https://wowwiki-archive.fandom.com/wiki/API_Region_SetPoint
