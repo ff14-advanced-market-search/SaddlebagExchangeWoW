@@ -84,6 +84,13 @@ function Saddlebag:handler(msg, SaddlebagEditBox)
             end
         end
 
+        -- used as key in the table
+        playerName = UnitName("player") .. tostring(GetRealmID())
+        if (UndercutJsonTable == nil)
+        then
+            UndercutJsonTable = {}
+        end
+
         -- get undercut if active auctions found
         if (active_auctions > 0)
         then
@@ -135,14 +142,14 @@ function Saddlebag:handler(msg, SaddlebagEditBox)
             output = output .. "\n    ]\n"
             output = output .. "}\n"
             -- add to saved variable
-            CharacterUndercutJson = output
+            UndercutJsonTable[playerName] = output
             -- print(output)
             -- return output
             local af = Saddlebag:auctionButton(output)
             af:Show()
-        elseif (CharacterUndercutJson ~= nil)
+        elseif (UndercutJsonTable[playerName] ~= nil)
         then
-            local af = Saddlebag:auctionButton(CharacterUndercutJson)
+            local af = Saddlebag:auctionButton(UndercutJsonTable[playerName])
             af:Show()
         else
             print("ERROR! Make sure you are at the auction house looking at your auctions before you click the button or run /sbex")
