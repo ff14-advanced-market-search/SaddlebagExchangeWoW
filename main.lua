@@ -49,13 +49,13 @@ function Saddlebag:HandleChatCommand(input)
 end
 
 function Saddlebag:showall(msg, SaddlebagEditBox)
-    local output = "[\n"
+    local output = "["
     for k, v in pairs(UndercutJsonTable) do
-        output = output .. v .. ",\n"
+        output = output .. v .. ","
     end
+    -- remove last comma
     output = output:sub(1, -2)
-    output = output:sub(1, -2)
-    output = output .. "\n]"
+    output = output .. "]"
 
     local af = Saddlebag:auctionButton(output)
     af:Show()
@@ -151,9 +151,10 @@ function Saddlebag:handler(msg, SaddlebagEditBox)
                 end
 
             end
+            -- remove last comma
             output = output:sub(1, -2)
             output = output .. "\n    ]\n"
-            output = output .. "}\n"
+            output = output .. "}"
             -- add to saved variable
             UndercutJsonTable[playerName] = output
             -- print(output)
