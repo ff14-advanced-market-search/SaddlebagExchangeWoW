@@ -49,7 +49,6 @@ function Saddlebag:HandleChatCommand(input)
 end
 
 function Saddlebag:showall(msg, SaddlebagEditBox)
-    print("foo")
     local output = "[\n"
     for k, v in pairs(UndercutJsonTable) do
         output = output .. v .. ",\n"
