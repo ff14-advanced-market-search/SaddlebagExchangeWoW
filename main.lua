@@ -303,9 +303,43 @@ function Saddlebag:addonButton()
     end)
 end
 
+function Saddlebag:addonButton2()
+    local addonButton2 = CreateFrame("Button", "MyButton", UIParent, "UIPanelButtonTemplate")
+    addonButton2:SetFrameStrata("HIGH")
+    addonButton2:SetSize(180,22) -- width, height
+    addonButton2:SetText("View Full Undercut Data")
+    -- center is fine for now, but need to pin to auction house frame https://wowwiki-archive.fandom.com/wiki/API_Region_SetPoint
+    addonButton2:SetPoint("TOPRIGHT", "AuctionHouseFrame", "TOPRIGHT", -240, 0)
+
+    -- make moveable
+    addonButton2:SetMovable(true)
+    addonButton2:EnableMouse(true)
+    addonButton2:RegisterForDrag("LeftButton")
+    addonButton2:SetScript("OnDragStart", function(self, button)
+        self:StartMoving()
+        -- print("OnDragStart", button)
+    end)
+    addonButton2:SetScript("OnDragStop", function(self)
+        self:StopMovingOrSizing()
+        -- print("OnDragStop")
+    end)
+
+    -- open main window on click
+    addonButton2:SetScript("OnClick", function()
+        Saddlebag:showall()
+        -- addonButton2:Hide()
+    end)
+
+    addonButton2:RegisterEvent("AUCTION_HOUSE_CLOSED")
+    addonButton2:SetScript("OnEvent", function()
+        addonButton2:Hide()
+    end)
+end
+
 -- https://wowwiki-archive.fandom.com/wiki/Events/Names
 local buttonPopUpFrame = CreateFrame("Frame")
 buttonPopUpFrame:RegisterEvent("AUCTION_HOUSE_SHOW")
 buttonPopUpFrame:SetScript("OnEvent", function()
     Saddlebag:addonButton()
+    Saddlebag:addonButton2()
 end)
