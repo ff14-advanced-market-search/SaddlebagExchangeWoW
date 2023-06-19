@@ -45,7 +45,21 @@ function Saddlebag:HandleChatCommand(input)
         end
     end
 
-    self:handler()
+    self:showall()
+end
+
+function Saddlebag:showall(msg, SaddlebagEditBox)
+    print("foo")
+    local output = "[\n"
+    for k, v in pairs(UndercutJsonTable) do
+        output = output .. v .. ",\n"
+    end
+    output = output:sub(1, -2)
+    output = output:sub(1, -2)
+    output = output .. "\n]"
+
+    local af = Saddlebag:auctionButton(output)
+    af:Show()
 end
 
 function Saddlebag:handler(msg, SaddlebagEditBox)
@@ -146,10 +160,6 @@ function Saddlebag:handler(msg, SaddlebagEditBox)
             -- print(output)
             -- return output
             local af = Saddlebag:auctionButton(output)
-            af:Show()
-        elseif (UndercutJsonTable[playerName] ~= nil)
-        then
-            local af = Saddlebag:auctionButton(UndercutJsonTable[playerName])
             af:Show()
         else
             print("ERROR! Make sure you are at the auction house looking at your auctions before you click the button or run /sbex")
