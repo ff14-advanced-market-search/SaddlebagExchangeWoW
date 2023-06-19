@@ -115,8 +115,7 @@ function Saddlebag:handler(msg, SaddlebagEditBox)
             -- print(table.concat(ownedAuctions))
 
             -- loop through auctions
-            output = "\n"
-            output = output .. "{\n"
+            output = "{\n"
             output = output .. '    "homeRealmName": "' .. tostring(GetRealmID()) .. '",\n'
             output = output .. '    "region": "' .. GetCurrentRegionName() .. '",\n'
 
@@ -142,11 +141,11 @@ function Saddlebag:handler(msg, SaddlebagEditBox)
                 -- dont do 82800 for battle pets its all messy
                 if (v["status"] == 0) and (v["itemKey"]["itemID"] ~= 82800) and (v["itemKey"]["itemID"] >= 185000)
                 then
-                    item_data = '\n        {"itemID": ' .. tostring(v["itemKey"]["itemID"]) .. ',"price": '.. tostring(v["buyoutAmount"])  .. ',"auctionID": '.. tostring(v["auctionID"]) .. '},'
+                    item_data = '\n        {"itemID": ' .. tostring(v["itemKey"]["itemID"]) .. ', "price": '.. tostring(v["buyoutAmount"])  .. ', "auctionID": '.. tostring(v["auctionID"]) .. '},'
                     output = output .. item_data
                 elseif (v["status"] == 0) and (v["itemKey"]["itemID"] == 82800)
                 then
-                    item_data = '\n        {"petID": ' .. tostring(v["itemKey"]["battlePetSpeciesID"]) .. ',"price": '.. tostring(v["buyoutAmount"]) .. ',"auctionID": '.. tostring(v["auctionID"]) .. '},'
+                    item_data = '\n        {"petID": ' .. tostring(v["itemKey"]["battlePetSpeciesID"]) .. ' ,"price": '.. tostring(v["buyoutAmount"]) .. ', "auctionID": '.. tostring(v["auctionID"]) .. '},'
                     output = output .. item_data
                 end
 
