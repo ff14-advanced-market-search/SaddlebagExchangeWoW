@@ -61,110 +61,115 @@ function Saddlebag:showall(msg, SaddlebagEditBox)
     af:Show()
 end
 
+function Saddlebag:GetUpdatedListingsJson()
+    ownedAuctions=C_AuctionHouse.GetOwnedAuctions();
+    print("Found", table.maxn(ownedAuctions), "auctions.")
+
+    -- find active auctions
+    active_auctions=0
+    for k, v in pairs(ownedAuctions) do
+        if v["status"] == 0 then
+            active_auctions=active_auctions+1
+        end
+    end
+    print("Found", tostring(active_auctions), "active auctions.")
+
+    -- delete duplicate entries
+    local seen = {}
+    local clean_ownedAuctions = {}
+    for index,item in ipairs(ownedAuctions) do
+        -- skip sold auctions
+        if item["status"] == 0 then
+            kv_str = tostring(item["itemKey"]["itemID"]) .. "_" .. tostring(item["buyoutAmount"])
+            local _, _, _, _, _, _, _, itemStackCount= GetItemInfo(item["itemKey"]["itemID"])
+            if itemStackCount == 1 then
+                if seen[kv_str] then
+                    table.remove(ownedAuctions, index)
+                else
+                -- print(kv_str)
+                    seen[kv_str] = true
+                    clean_ownedAuctions[index] = item
+                end
+            end
+        end
+    end
+
+    -- used as key in the table
+    playerName = UnitName("player") .. tostring(GetRealmID())
+    if (UndercutJsonTable == nil)
+    then
+        UndercutJsonTable = {}
+    end
+
+    -- get undercut if active auctions found
+    if (active_auctions > 0)
+    then
+
+        -- gets the auction id
+        -- print(ownedAuctions[1]["auctionID"])
+
+        -- doesnt work but it does show me the
+        -- print(table.concat(ownedAuctions))
+
+        -- loop through auctions
+        output = "{\n"
+        output = output .. '    "homeRealmName": "' .. tostring(GetRealmID()) .. '",\n'
+        output = output .. '    "region": "' .. GetCurrentRegionName() .. '",\n'
+
+        output = output .. '    "user_auctions": ['
+        for k, v in pairs(clean_ownedAuctions) do
+
+            -- print('===view auction keys===')
+            -- print("auction keys")
+            -- for i, j in pairs(v) do
+            --     print(i)
+            -- end
+
+            -- print('---view itemKey keys---')
+            -- print("itemKey info")
+            -- for i, j in pairs(v["itemKey"]) do
+            --     print(i)
+            -- end
+            -- print()
+            -- print("itemID found!", v["itemKey"]["itemID"])
+            -- print("price found!", v["buyoutAmount"])
+
+            -- 0 if listed, 1 if sold
+            -- dont do 82800 for battle pets its all messy
+            if (v["status"] == 0) and (v["itemKey"]["itemID"] ~= 82800) and (v["itemKey"]["itemID"] >= 185000)
+            then
+                item_data = '\n        {"itemID": ' .. tostring(v["itemKey"]["itemID"]) .. ', "price": '.. tostring(v["buyoutAmount"])  .. ', "auctionID": '.. tostring(v["auctionID"]) .. '},'
+                output = output .. item_data
+            elseif (v["status"] == 0) and (v["itemKey"]["itemID"] == 82800)
+            then
+                item_data = '\n        {"petID": ' .. tostring(v["itemKey"]["battlePetSpeciesID"]) .. ' ,"price": '.. tostring(v["buyoutAmount"]) .. ', "auctionID": '.. tostring(v["auctionID"]) .. '},'
+                output = output .. item_data
+            end
+
+        end
+        -- remove last comma
+        output = output:sub(1, -2)
+        output = output .. "\n    ]\n"
+        output = output .. "}"
+        -- add to saved variable
+        UndercutJsonTable[playerName] = output
+        -- print(output)
+        return output
+    else
+        print("ERROR! Make sure you are at the auction house looking at your auctions before you click the button or run /sbex")
+        print("{}")
+        return "{}"
+    end
+end
+
 function Saddlebag:handler(msg, SaddlebagEditBox)
-    if msg == 'help' then
+    if msg == 'help' 
+    then
         message('Go to the auction house, view your auctions and then click the pop up button or run /sbex')
     else
-        ownedAuctions=C_AuctionHouse.GetOwnedAuctions();
-        print("Found", table.maxn(ownedAuctions), "auctions.")
-
-        -- find active auctions
-        active_auctions=0
-        for k, v in pairs(ownedAuctions) do
-            if v["status"] == 0 then
-                active_auctions=active_auctions+1
-            end
-        end
-        print("Found", tostring(active_auctions), "active auctions.")
-
-        -- delete duplicate entries
-        local seen = {}
-        local clean_ownedAuctions = {}
-        for index,item in ipairs(ownedAuctions) do
-            -- skip sold auctions
-            if item["status"] == 0 then
-                kv_str = tostring(item["itemKey"]["itemID"]) .. "_" .. tostring(item["buyoutAmount"])
-                local _, _, _, _, _, _, _, itemStackCount= GetItemInfo(item["itemKey"]["itemID"])
-                if itemStackCount == 1 then
-                    if seen[kv_str] then
-                        table.remove(ownedAuctions, index)
-                    else
-                    -- print(kv_str)
-                        seen[kv_str] = true
-                        clean_ownedAuctions[index] = item
-                    end
-                end
-            end
-        end
-
-        -- used as key in the table
-        playerName = UnitName("player") .. tostring(GetRealmID())
-        if (UndercutJsonTable == nil)
-        then
-            UndercutJsonTable = {}
-        end
-
-        -- get undercut if active auctions found
-        if (active_auctions > 0)
-        then
-
-            -- gets the auction id
-            -- print(ownedAuctions[1]["auctionID"])
-
-            -- doesnt work but it does show me the 
-            -- print(table.concat(ownedAuctions))
-
-            -- loop through auctions
-            output = "{\n"
-            output = output .. '    "homeRealmName": "' .. tostring(GetRealmID()) .. '",\n'
-            output = output .. '    "region": "' .. GetCurrentRegionName() .. '",\n'
-
-            output = output .. '    "user_auctions": ['
-            for k, v in pairs(clean_ownedAuctions) do
-
-                -- print('===view auction keys===')
-                -- print("auction keys")
-                -- for i, j in pairs(v) do
-                --     print(i)
-                -- end
-
-                -- print('---view itemKey keys---')
-                -- print("itemKey info")
-                -- for i, j in pairs(v["itemKey"]) do
-                --     print(i)
-                -- end
-                -- print()
-                -- print("itemID found!", v["itemKey"]["itemID"])
-                -- print("price found!", v["buyoutAmount"])
-
-                -- 0 if listed, 1 if sold
-                -- dont do 82800 for battle pets its all messy
-                if (v["status"] == 0) and (v["itemKey"]["itemID"] ~= 82800) and (v["itemKey"]["itemID"] >= 185000)
-                then
-                    item_data = '\n        {"itemID": ' .. tostring(v["itemKey"]["itemID"]) .. ', "price": '.. tostring(v["buyoutAmount"])  .. ', "auctionID": '.. tostring(v["auctionID"]) .. '},'
-                    output = output .. item_data
-                elseif (v["status"] == 0) and (v["itemKey"]["itemID"] == 82800)
-                then
-                    item_data = '\n        {"petID": ' .. tostring(v["itemKey"]["battlePetSpeciesID"]) .. ' ,"price": '.. tostring(v["buyoutAmount"]) .. ', "auctionID": '.. tostring(v["auctionID"]) .. '},'
-                    output = output .. item_data
-                end
-
-            end
-            -- remove last comma
-            output = output:sub(1, -2)
-            output = output .. "\n    ]\n"
-            output = output .. "}"
-            -- add to saved variable
-            UndercutJsonTable[playerName] = output
-            -- print(output)
-            -- return output
-            local af = Saddlebag:auctionButton(output)
-            af:Show()
-        else
-            print("ERROR! Make sure you are at the auction house looking at your auctions before you click the button or run /sbex")
-            print("{}")
-            return "{}"
-        end
+        output = Saddlebag:GetUpdatedListingsJson()
+        local af = Saddlebag:auctionButton(output)
+        af:Show()
     end
 end
 SlashCmdList["SADDLEBAG"] = handler; -- Also a valid assignment strategy
@@ -273,7 +278,7 @@ function Saddlebag:addonButton()
     local addonButton = CreateFrame("Button", "MyButton", UIParent, "UIPanelButtonTemplate")
     addonButton:SetFrameStrata("HIGH")
     addonButton:SetSize(180,22) -- width, height
-    addonButton:SetText("Open Saddlebag Exchange")
+    addonButton:SetText("Show Single Undercut Data")
     -- center is fine for now, but need to pin to auction house frame https://wowwiki-archive.fandom.com/wiki/API_Region_SetPoint
     addonButton:SetPoint("TOPRIGHT", "AuctionHouseFrame", "TOPRIGHT", -30, 0)
 
@@ -341,4 +346,10 @@ buttonPopUpFrame:RegisterEvent("AUCTION_HOUSE_SHOW")
 buttonPopUpFrame:SetScript("OnEvent", function()
     Saddlebag:addonButton()
     Saddlebag:addonButton2()
+end)
+
+local buttonPopUpFrame = CreateFrame("Frame")
+buttonPopUpFrame:RegisterEvent("OWNED_AUCTIONS_UPDATED")
+buttonPopUpFrame:SetScript("OnEvent", function()
+    Saddlebag:GetUpdatedListingsJson()
 end)
