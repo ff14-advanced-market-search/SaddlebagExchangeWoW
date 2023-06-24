@@ -116,7 +116,7 @@ function Saddlebag:GetUpdatedListingsJson()
         output = output .. '    "homeRealmName": "' .. tostring(GetRealmID()) .. '",\n'
         output = output .. '    "region": "' .. GetCurrentRegionName() .. '",\n'
 
-        output = output .. '    "user_auctions": ['
+        output = output .. '    "user_auctions": [ '
         for k, v in pairs(clean_ownedAuctions) do
 
             -- print('===view auction keys===')
