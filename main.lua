@@ -116,7 +116,7 @@ function Saddlebag:GetUpdatedListingsJson()
         output = output .. '    "homeRealmName": "' .. tostring(GetRealmID()) .. '",\n'
         output = output .. '    "region": "' .. GetCurrentRegionName() .. '",\n'
 
-        output = output .. '    "user_auctions": [ '
+        output = output .. '    "user_auctions": [  '
         for k, v in pairs(clean_ownedAuctions) do
 
             -- print('===view auction keys===')
@@ -158,6 +158,7 @@ function Saddlebag:GetUpdatedListingsJson()
     else
         print("ERROR! Make sure you are at the auction house looking at your auctions before you click the button or run /sbex")
         print("{}")
+        UndercutJsonTable[playerName] = nil
         return "{}"
     end
 end
