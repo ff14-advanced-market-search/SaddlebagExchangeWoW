@@ -63,7 +63,7 @@ end
 
 function Saddlebag:GetUpdatedListingsJson()
     ownedAuctions=C_AuctionHouse.GetOwnedAuctions();
-    print("Found", table.maxn(ownedAuctions), "auctions.")
+    -- print("Found", table.maxn(ownedAuctions), "auctions.")
 
     -- find active auctions
     active_auctions=0
@@ -156,8 +156,8 @@ function Saddlebag:GetUpdatedListingsJson()
         -- print(output)
         return output
     else
-        print("ERROR! Make sure you are at the auction house looking at your auctions before you click the button or run /sbex")
-        print("{}")
+        -- print("ERROR! Make sure you are at the auction house looking at your auctions before you click the button or run /sbex")
+        print("clear old listing data {}, view your Auctions tab or post items to update.")
         UndercutJsonTable[playerName] = nil
         return "{}"
     end
@@ -345,6 +345,9 @@ end
 local buttonPopUpFrame = CreateFrame("Frame")
 buttonPopUpFrame:RegisterEvent("AUCTION_HOUSE_SHOW")
 buttonPopUpFrame:SetScript("OnEvent", function()
+    -- auto delete old data on new ah show
+    local af = Saddlebag:GetUpdatedListingsJson()
+    -- add buttons
     Saddlebag:addonButton()
     Saddlebag:addonButton2()
 end)
