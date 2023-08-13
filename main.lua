@@ -136,7 +136,11 @@ function Saddlebag:GetUpdatedListingsJson()
 
             -- 0 if listed, 1 if sold
             -- dont do 82800 for battle pets its all messy
-            if (v["status"] == 0) and (v["itemKey"]["itemID"] ~= 82800) and (v["itemKey"]["itemID"] >= 185000)
+
+            -- can go back to this if we need to disable legacy
+            -- if (v["status"] == 0) and (v["itemKey"]["itemID"] ~= 82800) and (v["itemKey"]["itemID"] >= 185000)
+
+            if (v["status"] == 0) and (v["itemKey"]["itemID"] ~= 82800)
             then
                 item_data = '\n        {"itemID": ' .. tostring(v["itemKey"]["itemID"]) .. ', "price": '.. tostring(v["buyoutAmount"])  .. ', "auctionID": '.. tostring(v["auctionID"]) .. '},'
                 output = output .. item_data
@@ -145,7 +149,6 @@ function Saddlebag:GetUpdatedListingsJson()
                 item_data = '\n        {"petID": ' .. tostring(v["itemKey"]["battlePetSpeciesID"]) .. ' ,"price": '.. tostring(v["buyoutAmount"]) .. ', "auctionID": '.. tostring(v["auctionID"]) .. '},'
                 output = output .. item_data
             end
-
         end
         -- remove last comma
         output = output:sub(1, -2)
