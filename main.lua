@@ -50,7 +50,7 @@ end
 
 function Saddlebag:showall(msg, SaddlebagEditBox)
     local output = ""
-    if (UndercutJsonTable == {}) 
+    if (UndercutJsonTable == nil)
     then
         output = output .. "[]"
     else
