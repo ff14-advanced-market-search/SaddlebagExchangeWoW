@@ -49,16 +49,33 @@ function Saddlebag:HandleChatCommand(input)
 end
 
 function Saddlebag:showall(msg, SaddlebagEditBox)
-    local output = "["
-    for k, v in pairs(UndercutJsonTable) do
-        output = output .. v .. ","
+    local output = ""
+    if (UndercutJsonTable == {}) 
+    then
+        output = output .. "[]"
+    else
+        output = output .. "["
+        for k, v in pairs(UndercutJsonTable) do
+            output = output .. v .. ","
+        end
+        -- if no data found
+        if (output == "[")
+        then
+            output = "[]"
+        else
+            -- remove last comma
+            output = output:sub(1, -2)
+            output = output .. "]"
+        end
     end
-    -- remove last comma
-    output = output:sub(1, -2)
-    output = output .. "]"
 
     local af = Saddlebag:auctionButton(output)
     af:Show()
+end
+
+function Saddlebag:clear(msg, SaddlebagEditBox)
+    UndercutJsonTable = {}
+    print("Your auctions table has been cleared out.")
 end
 
 function Saddlebag:GetUpdatedListingsJson()
@@ -343,12 +360,46 @@ function Saddlebag:addonButton2()
     end)
 end
 
+function Saddlebag:addonButton3()
+    local addonButton3 = CreateFrame("Button", "MyButton", UIParent, "UIPanelButtonTemplate")
+    addonButton3:SetFrameStrata("HIGH")
+    addonButton3:SetSize(120,22) -- width, height
+    addonButton3:SetText("Clear All Data")
+    -- center is fine for now, but need to pin to auction house frame https://wowwiki-archive.fandom.com/wiki/API_Region_SetPoint
+    addonButton3:SetPoint("TOPRIGHT", "AuctionHouseFrame", "TOPRIGHT", -470, 0)
+
+    -- make moveable
+    addonButton3:SetMovable(true)
+    addonButton3:EnableMouse(true)
+    addonButton3:RegisterForDrag("LeftButton")
+    addonButton3:SetScript("OnDragStart", function(self, button)
+        self:StartMoving()
+        -- print("OnDragStart", button)
+    end)
+    addonButton3:SetScript("OnDragStop", function(self)
+        self:StopMovingOrSizing()
+        -- print("OnDragStop")
+    end)
+
+    -- open main window on click
+    addonButton3:SetScript("OnClick", function()
+        Saddlebag:clear()
+        -- addonButton3:Hide()
+    end)
+
+    addonButton3:RegisterEvent("AUCTION_HOUSE_CLOSED")
+    addonButton3:SetScript("OnEvent", function()
+        addonButton3:Hide()
+    end)
+end
+
 -- https://wowwiki-archive.fandom.com/wiki/Events/Names
 local buttonPopUpFrame = CreateFrame("Frame")
 buttonPopUpFrame:RegisterEvent("AUCTION_HOUSE_SHOW")
 buttonPopUpFrame:SetScript("OnEvent", function()
     Saddlebag:addonButton()
     Saddlebag:addonButton2()
+    Saddlebag:addonButton3()
 end)
 
 local buttonPopUpFrame = CreateFrame("Frame")
