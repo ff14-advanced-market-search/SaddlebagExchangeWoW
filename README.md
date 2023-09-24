@@ -48,3 +48,15 @@ What you copy to your clipboard should look like this:
 
 4. Then you will copy that json output to your clipboard and send it to the discord bot.  We recommend the [Chat Copy Paste addon](https://www.curseforge.com/wow/addons/chat-copy-paste) to make this easy.
 
+## Clear Button and Error Handling
+
+If you ever have issues or invalid json use the "Clear All Data" to reset your undercut json.
+
+![image](https://github.com/ff14-advanced-market-search/SaddlebagExchangeWoW/assets/17516896/7cb6010f-5ba9-4489-83db-1d82a084a1bf)
+
+This will clear out all data and then you will need to check all your auctions again to update it once more.
+
+![image](https://github.com/ff14-advanced-market-search/SaddlebagExchangeWoW/assets/17516896/417627d6-d85d-4f3d-8c2e-3221bcaf2aa9)
+
+If you have further issues contact us on [discord](https://discord.gg/Pbp5xhmBJ7).
+
