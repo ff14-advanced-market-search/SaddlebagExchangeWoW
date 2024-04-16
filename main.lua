@@ -12,29 +12,29 @@ local SaddlebagFrame = nil
 function Saddlebag:OnInitialize()
     -- init databroker
     self.db = LibStub("AceDB-3.0"):New("SaddlebagDB", {
-      profile = {
-        minimap = {
-          hide = false,
+        profile = {
+            minimap = {
+                hide = false,
+            },
+            frame = {
+                point = "CENTER",
+                relativeFrame = nil,
+                relativePoint = "CENTER",
+                ofsx = 0,
+                ofsy = 0,
+                width = 750,
+                height = 400,
+            },
         },
-        frame = {
-          point = "CENTER",
-          relativeFrame = nil,
-          relativePoint = "CENTER",
-          ofsx = 0,
-          ofsy = 0,
-          width = 750,
-          height = 400,
-        },
-      },
     });
     -- LibDBIcon:Register("Saddlebag Exchange", SaddlebagLDB, self.db.profile.minimap)
     -- Saddlebag:UpdateMinimapButton()
-  
+
     Saddlebag:RegisterChatCommand('sbex', 'HandleChatCommand')
 end
 
 function Saddlebag:HandleChatCommand(input)
-    local args = {strsplit(' ', input)}
+    local args = { strsplit(' ', input) }
 
     for _, arg in ipairs(args) do
         if arg == 'help' then
@@ -79,14 +79,14 @@ function Saddlebag:clear(msg, SaddlebagEditBox)
 end
 
 function Saddlebag:GetUpdatedListingsJson()
-    ownedAuctions=C_AuctionHouse.GetOwnedAuctions();
+    ownedAuctions = C_AuctionHouse.GetOwnedAuctions();
     print("Found", table.maxn(ownedAuctions), "auctions.")
 
     -- find active auctions
-    active_auctions=0
+    active_auctions = 0
     for k, v in pairs(ownedAuctions) do
         if v["status"] == 0 then
-            active_auctions=active_auctions+1
+            active_auctions = active_auctions + 1
         end
     end
     print("Found", tostring(active_auctions), "active auctions.")
@@ -94,16 +94,16 @@ function Saddlebag:GetUpdatedListingsJson()
     -- delete duplicate entries
     local seen = {}
     local clean_ownedAuctions = {}
-    for index,item in ipairs(ownedAuctions) do
+    for index, item in ipairs(ownedAuctions) do
         -- skip sold auctions
         if item["status"] == 0 then
             kv_str = tostring(item["itemKey"]["itemID"]) .. "_" .. tostring(item["buyoutAmount"])
-            local _, _, _, _, _, _, _, itemStackCount= GetItemInfo(item["itemKey"]["itemID"])
+            local _, _, _, _, _, _, _, itemStackCount = GetItemInfo(item["itemKey"]["itemID"])
             if itemStackCount == 1 then
                 if seen[kv_str] then
                     table.remove(ownedAuctions, index)
                 else
-                -- print(kv_str)
+                    -- print(kv_str)
                     seen[kv_str] = true
                     clean_ownedAuctions[index] = item
                 end
@@ -121,7 +121,6 @@ function Saddlebag:GetUpdatedListingsJson()
     -- get undercut if active auctions found
     if (active_auctions > 0)
     then
-
         -- gets the auction id
         -- print(ownedAuctions[1]["auctionID"])
 
@@ -135,7 +134,6 @@ function Saddlebag:GetUpdatedListingsJson()
 
         output = output .. '    "user_auctions": ['
         for k, v in pairs(clean_ownedAuctions) do
-
             -- print('===view auction keys===')
             -- print("auction keys")
             -- for i, j in pairs(v) do
@@ -159,11 +157,15 @@ function Saddlebag:GetUpdatedListingsJson()
 
             if (v["status"] == 0) and (v["itemKey"]["itemID"] ~= 82800)
             then
-                item_data = '\n        {"itemID": ' .. tostring(v["itemKey"]["itemID"]) .. ', "price": '.. tostring(v["buyoutAmount"])  .. ', "auctionID": '.. tostring(v["auctionID"]) .. '},'
+                item_data = '\n        {"itemID": ' ..
+                    tostring(v["itemKey"]["itemID"]) ..
+                    ', "price": ' .. tostring(v["buyoutAmount"]) .. ', "auctionID": ' .. tostring(v["auctionID"]) .. '},'
                 output = output .. item_data
             elseif (v["status"] == 0) and (v["itemKey"]["itemID"] == 82800)
             then
-                item_data = '\n        {"petID": ' .. tostring(v["itemKey"]["battlePetSpeciesID"]) .. ' ,"price": '.. tostring(v["buyoutAmount"]) .. ', "auctionID": '.. tostring(v["auctionID"]) .. '},'
+                item_data = '\n        {"petID": ' ..
+                    tostring(v["itemKey"]["battlePetSpeciesID"]) ..
+                    ' ,"price": ' .. tostring(v["buyoutAmount"]) .. ', "auctionID": ' .. tostring(v["auctionID"]) .. '},'
                 output = output .. item_data
             end
         end
@@ -176,14 +178,15 @@ function Saddlebag:GetUpdatedListingsJson()
         -- print(output)
         return output
     else
-        print("ERROR! Make sure you are at the auction house looking at your auctions before you click the button or run /sbex")
+        print(
+            "ERROR! Make sure you are at the auction house looking at your auctions before you click the button or run /sbex")
         print("{}")
         return "{}"
     end
 end
 
 function Saddlebag:handler(msg, SaddlebagEditBox)
-    if msg == 'help' 
+    if msg == 'help'
     then
         message('Go to the auction house, view your auctions and then click the pop up button or run /sbex')
     else
@@ -192,6 +195,7 @@ function Saddlebag:handler(msg, SaddlebagEditBox)
         af:Show()
     end
 end
+
 SlashCmdList["SADDLEBAG"] = handler; -- Also a valid assignment strategy
 
 -- easy button system
@@ -214,7 +218,7 @@ function Saddlebag:auctionButton(text)
             bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
             edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
             edgeSize = 16,
-            insets = { left = 8, right = 8, top = 8, bottom = 8},
+            insets = { left = 8, right = 8, top = 8, bottom = 8 },
         })
         f:SetMovable(true)
         f:SetClampedToScreen(true)
@@ -239,7 +243,7 @@ function Saddlebag:auctionButton(text)
         local sf = CreateFrame("ScrollFrame", "SaddlebagScrollFrame", f, "UIPanelScrollFrameTemplate")
         sf:SetPoint("LEFT", 16, 0)
         sf:SetPoint("RIGHT", -32, 0)
-        sf:SetPoint("TOP", 0, 0)
+        sf:SetPoint("TOP", 0, -16)
         sf:SetPoint("BOTTOM", SaddlebagFrameButton, "TOP", 0, 0)
 
         -- edit box
@@ -251,53 +255,52 @@ function Saddlebag:auctionButton(text)
         eb:SetScript("OnEscapePressed", function() f:Hide() end)
         sf:SetScrollChild(eb)
 
-            -- resizing
-    f:SetResizable(true)
-    if f.SetMinResize then
-      -- older function from shadowlands and before
-      -- Can remove when Dragonflight is in full swing
-      f:SetMinResize(150, 100)
-    else
-      -- new func for dragonflight
-      f:SetResizeBounds(150, 100, nil, nil)
-    end
-    local rb = CreateFrame("Button", "SaddlebagResizeButton", f)
-    rb:SetPoint("BOTTOMRIGHT", -6, 7)
-    rb:SetSize(16, 16)
-
-    rb:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
-    rb:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
-    rb:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
-
-    rb:SetScript("OnMouseDown", function(self, button) -- luacheck: ignore
-        if button == "LeftButton" then
-            f:StartSizing("BOTTOMRIGHT")
-            self:GetHighlightTexture():Hide() -- more noticeable
+        -- resizing
+        f:SetResizable(true)
+        if f.SetMinResize then
+            -- older function from shadowlands and before
+            -- Can remove when Dragonflight is in full swing
+            f:SetMinResize(150, 100)
+        else
+            -- new func for dragonflight
+            f:SetResizeBounds(150, 100, nil, nil)
         end
-    end)
-    rb:SetScript("OnMouseUp", function(self, _) -- luacheck: ignore
-        f:StopMovingOrSizing()
-        self:GetHighlightTexture():Show()
-        eb:SetWidth(sf:GetWidth())
+        local rb = CreateFrame("Button", "SaddlebagResizeButton", f)
+        rb:SetPoint("BOTTOMRIGHT", -6, 7)
+        rb:SetSize(16, 16)
 
-        -- save size between sessions
-        frameConfig.width = f:GetWidth()
-        frameConfig.height = f:GetHeight()
-    end)
+        rb:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
+        rb:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
+        rb:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
 
-    SaddlebagFrame = f
-  end
-  SaddlebagEditBox:SetText(text)
-  SaddlebagEditBox:HighlightText()
-  return SaddlebagFrame
+        rb:SetScript("OnMouseDown", function(self, button) -- luacheck: ignore
+            if button == "LeftButton" then
+                f:StartSizing("BOTTOMRIGHT")
+                self:GetHighlightTexture():Hide() -- more noticeable
+            end
+        end)
+        rb:SetScript("OnMouseUp", function(self, _) -- luacheck: ignore
+            f:StopMovingOrSizing()
+            self:GetHighlightTexture():Show()
+            eb:SetWidth(sf:GetWidth())
 
+            -- save size between sessions
+            frameConfig.width = f:GetWidth()
+            frameConfig.height = f:GetHeight()
+        end)
+
+        SaddlebagFrame = f
+    end
+    SaddlebagEditBox:SetText(text)
+    SaddlebagEditBox:HighlightText()
+    return SaddlebagFrame
 end
 
 -- easy button system
 function Saddlebag:addonButton()
     local addonButton = CreateFrame("Button", "MyButton", UIParent, "UIPanelButtonTemplate")
     addonButton:SetFrameStrata("HIGH")
-    addonButton:SetSize(180,22) -- width, height
+    addonButton:SetSize(180, 22) -- width, height
     addonButton:SetText("Show Single Undercut Data")
     -- center is fine for now, but need to pin to auction house frame https://wowwiki-archive.fandom.com/wiki/API_Region_SetPoint
     addonButton:SetPoint("TOPRIGHT", "AuctionHouseFrame", "TOPRIGHT", -30, 0)
@@ -330,7 +333,7 @@ end
 function Saddlebag:addonButton2()
     local addonButton2 = CreateFrame("Button", "MyButton", UIParent, "UIPanelButtonTemplate")
     addonButton2:SetFrameStrata("HIGH")
-    addonButton2:SetSize(180,22) -- width, height
+    addonButton2:SetSize(180, 22) -- width, height
     addonButton2:SetText("View Full Undercut Data")
     -- center is fine for now, but need to pin to auction house frame https://wowwiki-archive.fandom.com/wiki/API_Region_SetPoint
     addonButton2:SetPoint("TOPRIGHT", "AuctionHouseFrame", "TOPRIGHT", -240, 0)
@@ -363,7 +366,7 @@ end
 function Saddlebag:addonButton3()
     local addonButton3 = CreateFrame("Button", "MyButton", UIParent, "UIPanelButtonTemplate")
     addonButton3:SetFrameStrata("HIGH")
-    addonButton3:SetSize(120,22) -- width, height
+    addonButton3:SetSize(120, 22) -- width, height
     addonButton3:SetText("Clear All Data")
     -- center is fine for now, but need to pin to auction house frame https://wowwiki-archive.fandom.com/wiki/API_Region_SetPoint
     addonButton3:SetPoint("TOPRIGHT", "AuctionHouseFrame", "TOPRIGHT", -470, 0)

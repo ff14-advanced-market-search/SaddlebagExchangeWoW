@@ -1,23 +1,11 @@
-## Interface: 100002
+## Interface: 100206
 ## Title: Saddlebag Exchange
 ## Notes: Constructs undercut alerts
-## Author: indopan, Terise
-## Version: 10.1.0
+## Author: indopan, Terise, berickus
+## Version: @project-version@
 ## OptionalDependencies: Ace3, LibRealmInfo, LibDBIcon, LibDataBroker-1.1
 ## SavedVariables: SimulationCraftDB, UndercutJsonTable
 
-## X-Curse-Project-ID: 738707
-
-libs\LibStub\LibStub.lua
-libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
-#@no-lib-strip@
-libs\AceAddon-3.0\AceAddon-3.0.xml
-libs\AceConsole-3.0\AceConsole-3.0.xml
-libs\AceEvent-3.0\AceEvent-3.0.xml
-libs\AceDB-3.0\AceDB-3.0.xml
-libs\LibRealmInfo\LibRealmInfo.lua
-libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
-Libs\LibDBIcon-1.0\lib.xml
-#@end-no-lib-strip@
+embeds.xml
 
 main.lua
