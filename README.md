@@ -7,7 +7,7 @@ https://www.curseforge.com/wow/addons/saddlebag-exchange
 https://github.com/ff14-advanced-market-search/saddlebag-with-pockets/wiki/API-Call-Guide:-Part-2-(WoW-API)
 
 ## Addon JSON Output Example
-![image](https://user-images.githubusercontent.com/17516896/208216286-2716b14a-8548-4334-ab5d-17de895938ca.png)
+![image](https://i.imgur.com/7X9okrR.png)
 
 ## Discord Alert Example:
 
@@ -25,7 +25,7 @@ To download the addon clone the repo locally or [download it as a zip file](http
 
 Json data similar to the following will be printed into the saddlebag popup window:
 
-![image](https://user-images.githubusercontent.com/17516896/208216286-2716b14a-8548-4334-ab5d-17de895938ca.png)
+![image](https://i.imgur.com/7X9okrR.png)
 
 What you copy to your clipboard should look like this:
 
