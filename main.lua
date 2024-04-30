@@ -2,11 +2,38 @@
 
 -- message('Thanks for testing out Saddlebag Exchange WoW Undercut alerts! Use the commands: \n/sbex, /Saddlebag or /Saddlebagexchange')
 local _, Saddlebag = ...
+local addonName = "Saddlebag Exchange Undercut Alerts"
 
 Saddlebag = LibStub("AceAddon-3.0"):NewAddon(Saddlebag, "Saddlebag", "AceConsole-3.0", "AceEvent-3.0")
+local AceGUI = LibStub("AceGUI-3.0")
 LibRealmInfo = LibStub("LibRealmInfo")
 
 local SaddlebagFrame = nil
+local private = {
+    itemNames = {},
+    auctions = {},
+    ignoredAuctions = {},
+}
+
+local function has_value(tab, val)
+    for _, value in ipairs(tab) do
+        if value == val then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function get_index(tab, val)
+    for index, value in ipairs(tab) do
+        if value == val then
+            return index
+        end
+    end
+
+    return nil
+end
 
 -- SLASH_SADDLEBAG1, SLASH_SADDLEBAG2, SLASH_SADDLEBAG3 = '/sbex', '/Saddlebag', '/Saddlebagexchange';
 function Saddlebag:OnInitialize()
@@ -23,7 +50,7 @@ function Saddlebag:OnInitialize()
                 ofsx = 0,
                 ofsy = 0,
                 width = 750,
-                height = 400,
+                height = 500,
             },
         },
     });
@@ -55,7 +82,7 @@ function Saddlebag:showall(msg, SaddlebagEditBox)
         output = output .. "[]"
     else
         output = output .. "["
-        for k, v in pairs(UndercutJsonTable) do
+        for _, v in pairs(UndercutJsonTable) do
             output = output .. v .. ","
         end
         -- if no data found
@@ -78,12 +105,27 @@ function Saddlebag:clear(msg, SaddlebagEditBox)
     print("Your auctions table has been cleared out.")
 end
 
-function Saddlebag:GetUpdatedListingsJson()
-    ownedAuctions = C_AuctionHouse.GetOwnedAuctions();
-    print("Found", table.maxn(ownedAuctions), "auctions.")
+function Saddlebag:tableLength(T)
+    local count = 0
+    for _ in pairs(T) do count = count + 1 end
+    return count
+end
+
+function Saddlebag:SetupMultiSelect(multiSelect, auctions)
+    -- print("Setting up multiSelect with auctions "..Saddlebag:tableLength(auctions))
+    for _, item in ipairs(auctions) do
+        local itemName, _, _, _, _, _, _, _ = GetItemInfo(item["itemKey"]["itemID"])
+        -- print("Adding item "..itemName)
+        multiSelect:AddItem(itemName)
+    end
+end
+
+function Saddlebag:GetCleanAuctions()
+    local ownedAuctions = C_AuctionHouse.GetOwnedAuctions();
+    print("Found", Saddlebag:tableLength(ownedAuctions), "auctions.")
 
     -- find active auctions
-    active_auctions = 0
+    local active_auctions = 0
     for k, v in pairs(ownedAuctions) do
         if v["status"] == 0 then
             active_auctions = active_auctions + 1
@@ -97,8 +139,10 @@ function Saddlebag:GetUpdatedListingsJson()
     for index, item in ipairs(ownedAuctions) do
         -- skip sold auctions
         if item["status"] == 0 then
-            kv_str = tostring(item["itemKey"]["itemID"]) .. "_" .. tostring(item["buyoutAmount"])
-            local _, _, _, _, _, _, _, itemStackCount = GetItemInfo(item["itemKey"]["itemID"])
+            local kv_str = tostring(item["itemKey"]["itemID"]) .. "_" .. tostring(item["buyoutAmount"])
+            local itemName, _, _, _, _, _, _, itemStackCount = GetItemInfo(item["itemKey"]["itemID"])
+            private.auctions[index] = item["auctionID"]
+            private.itemNames[index] = itemName
             if itemStackCount == 1 then
                 if seen[kv_str] then
                     table.remove(ownedAuctions, index)
@@ -111,8 +155,14 @@ function Saddlebag:GetUpdatedListingsJson()
         end
     end
 
+    return clean_ownedAuctions
+end
+
+function Saddlebag:GetUpdatedListingsJson()
+    local clean_ownedAuctions = Saddlebag:GetCleanAuctions()
+
     -- used as key in the table
-    playerName = UnitName("player") .. tostring(GetRealmID())
+    local playerName = UnitName("player") .. tostring(GetRealmID())
     if (UndercutJsonTable == nil)
     then
         UndercutJsonTable = {}
@@ -120,7 +170,7 @@ function Saddlebag:GetUpdatedListingsJson()
 
     -- get undercut if active auctions found
     local storage = {}
-    if (active_auctions > 0)
+    if (Saddlebag:tableLength(clean_ownedAuctions) > 0)
     then
         -- gets the auction id
         -- print(ownedAuctions[1]["auctionID"])
@@ -129,14 +179,14 @@ function Saddlebag:GetUpdatedListingsJson()
         -- print(table.concat(ownedAuctions))
 
         -- loop through auctions
-        output = "{\n"
+        local output = "{\n"
         output = output .. '    "homeRealmName": "' .. tostring(GetRealmID()) .. '",\n'
         output = output .. '    "region": "' .. GetCurrentRegionName() .. '",\n'
         storage.homeRealmName = GetRealmID()
         storage.region = GetCurrentRegionName()
         storage.user_auctions = {}
 
-        local count = 0
+        local count = 1
         output = output .. '    "user_auctions": ['
         for _, v in pairs(clean_ownedAuctions) do
             -- print('===view auction keys===')
@@ -160,7 +210,8 @@ function Saddlebag:GetUpdatedListingsJson()
             -- can go back to this if we need to disable legacy
             -- if (v["status"] == 0) and (v["itemKey"]["itemID"] ~= 82800) and (v["itemKey"]["itemID"] >= 185000)
 
-            if (v["status"] == 0) and (v["itemKey"]["itemID"] ~= 82800)
+            local item_str
+            if (not has_value(private.ignoredAuctions, v["auctionID"]))
             then
                 item_str = '\n        {"itemID": ' ..
                     tostring(v["itemKey"]["itemID"]) ..
@@ -206,8 +257,7 @@ function Saddlebag:handler(msg, SaddlebagEditBox)
     then
         message('Go to the auction house, view your auctions and then click the pop up button or run /sbex')
     else
-        output = Saddlebag:GetUpdatedListingsJson()
-        local af = Saddlebag:auctionButton(output)
+        local af = Saddlebag:auctionButton(Saddlebag:GetUpdatedListingsJson())
         af:Show()
     end
 end
@@ -219,8 +269,22 @@ function Saddlebag:auctionButton(text)
     if not SaddlebagFrame then
         -- MainFrame
         local frameConfig = self.db.profile.frame
-        local f = CreateFrame("Frame", "SaddlebagFrame", UIParent, "DialogBoxFrame")
+
+        local f = AceGUI:Create("Frame")
         f:ClearAllPoints()
+        f.frame:SetFrameStrata("MEDIUM")
+        f.frame:Raise()
+        f.content:SetFrameStrata("MEDIUM")
+        f.content:Raise()
+        f:Hide()
+        f:SetTitle(addonName)
+        f:SetCallback("OnClose", OnClose)
+        f:SetLayout("Fill")
+        f.frame:SetClampedToScreen(true)
+        f:SetWidth(frameConfig.width)
+        f:SetHeight(frameConfig.height)
+        f:SetAutoAdjustHeight(true)
+
         -- load position from local DB
         f:SetPoint(
             frameConfig.point,
@@ -229,21 +293,12 @@ function Saddlebag:auctionButton(text)
             frameConfig.ofsx,
             frameConfig.ofsy
         )
-        f:SetSize(frameConfig.width, frameConfig.height)
-        f:SetBackdrop({
-            bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-            edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
-            edgeSize = 16,
-            insets = { left = 8, right = 8, top = 8, bottom = 8 },
-        })
-        f:SetMovable(true)
-        f:SetClampedToScreen(true)
-        f:SetScript("OnMouseDown", function(self, button) -- luacheck: ignore
+        f:SetCallback("OnMouseDown", function(self, button) -- luacheck: ignore
             if button == "LeftButton" then
                 self:StartMoving()
             end
         end)
-        f:SetScript("OnMouseUp", function(self, _) --luacheck: ignore
+        f:SetCallback("OnMouseUp", function(self, _) --luacheck: ignore
             self:StopMovingOrSizing()
             -- save position between sessions
             local point, relativeFrame, relativeTo, ofsx, ofsy = self:GetPoint()
@@ -254,61 +309,91 @@ function Saddlebag:auctionButton(text)
             frameConfig.ofsy = ofsy
         end)
 
-        -- scroll frame
+        local mainGroup = AceGUI:Create("SimpleGroup")
+        mainGroup:SetLayout("List")
+        mainGroup:SetFullWidth(true)
+        mainGroup:SetFullHeight(true)
+        f:AddChild(mainGroup)
 
-        local sf = CreateFrame("ScrollFrame", "SaddlebagScrollFrame", f, "UIPanelScrollFrameTemplate")
-        sf:SetPoint("LEFT", 16, 0)
-        sf:SetPoint("RIGHT", -32, 0)
-        sf:SetPoint("TOP", 0, -16)
-        sf:SetPoint("BOTTOM", SaddlebagFrameButton, "TOP", 0, 0)
+        local itemsGroup = AceGUI:Create("SimpleGroup")
+        itemsGroup:SetLayout("Flow")
+        itemsGroup:SetFullWidth(true)
+        itemsGroup:SetFullHeight(true)
+        mainGroup:AddChild(itemsGroup)
 
-        -- edit box
-        local eb = CreateFrame("EditBox", "SaddlebagEditBox", SaddlebagScrollFrame)
-        eb:SetSize(sf:GetSize())
-        eb:SetMultiLine(true)
-        eb:SetAutoFocus(true)
-        eb:SetFontObject("ChatFontNormal")
-        eb:SetScript("OnEscapePressed", function() f:Hide() end)
-        sf:SetScrollChild(eb)
+        -- listed items
+        local li = AceGUI:Create("MultiSelect")
+        itemsGroup:AddChild(li)
+        li:SetLabel("My listed auctions")
+        li:SetMultiSelect(false)
+        li:SetHeight(175)
+        li:SetFullWidth(false)
+        li:SetRelativeWidth(0.45)
 
-        -- resizing
-        f:SetResizable(true)
-        if f.SetMinResize then
-            -- older function from shadowlands and before
-            -- Can remove when Dragonflight is in full swing
-            f:SetMinResize(150, 100)
-        else
-            -- new func for dragonflight
-            f:SetResizeBounds(150, 100, nil, nil)
-        end
-        local rb = CreateFrame("Button", "SaddlebagResizeButton", f)
-        rb:SetPoint("BOTTOMRIGHT", -6, 7)
-        rb:SetSize(16, 16)
+        -- labels
+        local labelGroup = AceGUI:Create("SimpleGroup")
+        labelGroup:SetLayout("List")
+        labelGroup:SetRelativeWidth(0.1)
+        itemsGroup:AddChild(labelGroup)
 
-        rb:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
-        rb:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
-        rb:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
+        local addLabel = AceGUI:Create("Label")
+        addLabel:SetText(">")
+        labelGroup:AddChild(addLabel)
 
-        rb:SetScript("OnMouseDown", function(self, button) -- luacheck: ignore
-            if button == "LeftButton" then
-                f:StartSizing("BOTTOMRIGHT")
-                self:GetHighlightTexture():Hide() -- more noticeable
-            end
+        local removeLabel = AceGUI:Create("Label")
+        removeLabel:SetText("<")
+        labelGroup:AddChild(removeLabel)
+
+        -- exluded items
+        local ei = AceGUI:Create("MultiSelect")
+        itemsGroup:AddChild(ei)
+        ei:SetLabel("My excluded auctions")
+        ei:SetMultiSelect(false)
+        ei:SetHeight(175)
+        ei:SetFullWidth(false)
+        ei:SetRelativeWidth(0.45)
+
+        -- result group
+        local resultGroup = AceGUI:Create("SimpleGroup")
+        resultGroup:SetLayout("Flow")
+        resultGroup:SetFullWidth(true)
+        resultGroup:SetFullHeight(true)
+        mainGroup:AddChild(resultGroup)
+
+        local sf = AceGUI:Create("MultiLineEditBox")
+        resultGroup:AddChild(sf)
+        sf:SetLabel("Saddlebag exchange undercut alert JSON")
+        sf:SetMaxLetters(0)
+        sf:SetNumLines(15)
+        sf:SetHeight(150)
+        sf:DisableButton(true)
+        sf:SetFullWidth(true)
+        sf:SetText(text)
+        sf:HighlightText()
+
+        -- setup and callbacks
+        Saddlebag:SetupMultiSelect(li, Saddlebag:GetCleanAuctions())
+        li:SetCallback("OnLabelClick", function(widget, event, value)
+            -- print("You clicked on the item " .. li:GetText(value))
+            ei:AddItem(li:GetText(value))
+            table.insert(private.ignoredAuctions, private.auctions[get_index(private.itemNames, li:GetText(value))])
+            li:RemoveItem(value)
+            sf:SetText(Saddlebag:GetUpdatedListingsJson())
+            li:Sort()
+            ei:Sort()
         end)
-        rb:SetScript("OnMouseUp", function(self, _) -- luacheck: ignore
-            f:StopMovingOrSizing()
-            self:GetHighlightTexture():Show()
-            eb:SetWidth(sf:GetWidth())
-
-            -- save size between sessions
-            frameConfig.width = f:GetWidth()
-            frameConfig.height = f:GetHeight()
+        ei:SetCallback("OnLabelClick", function(widget, event, value)
+            -- print("You clicked on the item " .. ei:GetText(value))
+            li:AddItem(ei:GetText(value))
+            table.remove(private.ignoredAuctions, get_index(private.ignoredAuctions, private.auctions[get_index(private.itemNames, ei:GetText(value))]))
+            ei:RemoveItem(value)
+            sf:SetText(Saddlebag:GetUpdatedListingsJson())
+            li:Sort()
+            ei:Sort()
         end)
 
         SaddlebagFrame = f
     end
-    SaddlebagEditBox:SetText(text)
-    SaddlebagEditBox:HighlightText()
     return SaddlebagFrame
 end
 

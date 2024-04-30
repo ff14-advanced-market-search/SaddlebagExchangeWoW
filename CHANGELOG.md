@@ -9,3 +9,7 @@
 ## [53f2df4](https://github.com/ff14-advanced-market-search/SaddlebagExchangeWoW/commit/53f2df4068a65d2885de7fa66f27d6d89228343b) (2023-06-19)
 
 - added regional data store, fixing new lines, added auctionID, added pet functionality
+
+## [PR29](https://github.com/ff14-advanced-market-search/SaddlebagExchangeWoW/pull/29) (2024-04-22)
+
+- Added exclude list for auctions
