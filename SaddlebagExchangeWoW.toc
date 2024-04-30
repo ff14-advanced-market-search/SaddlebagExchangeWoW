@@ -4,7 +4,7 @@
 ## Author: indopan, Terise, berickus
 ## Version: @project-version@
 ## OptionalDependencies: Ace3, LibRealmInfo, LibDBIcon, LibDataBroker-1.1
-## SavedVariables: SimulationCraftDB, UndercutJsonTable
+## SavedVariables: UndercutJsonTable
 
 embeds.xml
 

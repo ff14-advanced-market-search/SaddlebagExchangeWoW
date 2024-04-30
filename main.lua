@@ -119,6 +119,7 @@ function Saddlebag:GetUpdatedListingsJson()
     end
 
     -- get undercut if active auctions found
+    local storage = {}
     if (active_auctions > 0)
     then
         -- gets the auction id
@@ -131,9 +132,13 @@ function Saddlebag:GetUpdatedListingsJson()
         output = "{\n"
         output = output .. '    "homeRealmName": "' .. tostring(GetRealmID()) .. '",\n'
         output = output .. '    "region": "' .. GetCurrentRegionName() .. '",\n'
+        storage.homeRealmName = GetRealmID()
+        storage.region = GetCurrentRegionName()
+        storage.user_auctions = {}
 
+        local count = 0
         output = output .. '    "user_auctions": ['
-        for k, v in pairs(clean_ownedAuctions) do
+        for _, v in pairs(clean_ownedAuctions) do
             -- print('===view auction keys===')
             -- print("auction keys")
             -- for i, j in pairs(v) do
@@ -157,24 +162,35 @@ function Saddlebag:GetUpdatedListingsJson()
 
             if (v["status"] == 0) and (v["itemKey"]["itemID"] ~= 82800)
             then
-                item_data = '\n        {"itemID": ' ..
+                item_str = '\n        {"itemID": ' ..
                     tostring(v["itemKey"]["itemID"]) ..
                     ', "price": ' .. tostring(v["buyoutAmount"]) .. ', "auctionID": ' .. tostring(v["auctionID"]) .. '},'
-                output = output .. item_data
+                output = output .. item_str
+                local item_data = {}
+                item_data.itemID = v["itemKey"]["itemID"]
+                item_data.price = v["buyoutAmount"]
+                item_data.auctionID = v["auctionID"]
+                storage.user_auctions[count] = item_data
             elseif (v["status"] == 0) and (v["itemKey"]["itemID"] == 82800)
             then
-                item_data = '\n        {"petID": ' ..
+                item_str = '\n        {"petID": ' ..
                     tostring(v["itemKey"]["battlePetSpeciesID"]) ..
                     ' ,"price": ' .. tostring(v["buyoutAmount"]) .. ', "auctionID": ' .. tostring(v["auctionID"]) .. '},'
-                output = output .. item_data
+                output = output .. item_str
+                local item_data = {}
+                item_data.petID = v["itemKey"]["battlePetSpeciesID"]
+                item_data.price = v["buyoutAmount"]
+                item_data.auctionID = v["auctionID"]
+                storage.user_auctions[count] = item_data
             end
+            count = count + 1
         end
         -- remove last comma
         output = output:sub(1, -2)
         output = output .. "\n    ]\n"
         output = output .. "}"
         -- add to saved variable
-        UndercutJsonTable[playerName] = output
+        UndercutJsonTable[playerName] = storage
         -- print(output)
         return output
     else
