@@ -83,7 +83,7 @@ function Saddlebag:showall(msg, SaddlebagEditBox)
     else
         output = output .. "["
         for _, v in pairs(UndercutJsonTable) do
-            output = output .. v .. ","
+            output = output .. Saddlebag:tableToString(v) .. ","
         end
         -- if no data found
         if (output == "[")
@@ -109,6 +109,31 @@ function Saddlebag:tableLength(T)
     local count = 0
     for _ in pairs(T) do count = count + 1 end
     return count
+end
+
+function Saddlebag:tableToString(tbl)
+	local result = "{"
+	for k, v in pairs(tbl) do
+		-- Check the key type (ignore any numerical keys - assume its an array)
+		if type(k) == "string" then
+			result = result .. "[\"" .. k .. "\"]" .. "="
+		end
+
+		-- Check the value type
+		if type(v) == "table" then
+			result = result .. Saddlebag:tableToString(v)
+		elseif type(v) == "boolean" then
+			result = result .. tostring(v)
+		else
+			result = result .. "\"" .. v .. "\""
+		end
+		result = result .. ","
+	end
+	-- Remove leading commas from the result
+	if result ~= "{" then
+		result = result:sub(1, result:len() - 1)
+	end
+	return result .. "}"
 end
 
 function Saddlebag:SetupMultiSelect(multiSelect, auctions)
