@@ -11,4 +11,5 @@
   <Script file="Libs\LibRealmInfo\LibRealmInfo.lua" />
   <Script file="Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua" />
   <Script file="Libs\LibDBIcon-1.0\LibDBIcon-1.0.lua" />
+  <Script file="Libs\dkjson\dkjson.lua" />
 </Ui>

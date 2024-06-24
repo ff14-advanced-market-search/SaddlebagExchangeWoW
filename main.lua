@@ -7,6 +7,7 @@ local addonName = "Saddlebag Exchange Undercut Alerts"
 Saddlebag = LibStub("AceAddon-3.0"):NewAddon(Saddlebag, "Saddlebag", "AceConsole-3.0", "AceEvent-3.0")
 local AceGUI = LibStub("AceGUI-3.0")
 LibRealmInfo = LibStub("LibRealmInfo")
+local dkjson = LibStub("dkjson")
 
 local SaddlebagFrame = nil
 local private = {
@@ -75,7 +76,7 @@ function Saddlebag:HandleChatCommand(input)
     self:showall()
 end
 
-function Saddlebag:showall(msg, SaddlebagEditBox)
+function Saddlebag:showall()
     local output = ""
     if (UndercutJsonTable == nil)
     then
@@ -83,7 +84,7 @@ function Saddlebag:showall(msg, SaddlebagEditBox)
     else
         output = output .. "["
         for _, v in pairs(UndercutJsonTable) do
-            output = output .. Saddlebag:tableToString(v) .. ","
+            output = output .. dkjson.json.encode(v, { indent = true }) .. ","
         end
         -- if no data found
         if (output == "[")
@@ -96,12 +97,14 @@ function Saddlebag:showall(msg, SaddlebagEditBox)
         end
     end
 
-    local af = Saddlebag:auctionButton(output)
+    local af = Saddlebag:auctionButton("")
+    Saddlebag.sf:SetText(output)
     af:Show()
 end
 
 function Saddlebag:clear(msg, SaddlebagEditBox)
     UndercutJsonTable = {}
+    Saddlebag.sf:SetText("")
     print("Your auctions table has been cleared out.")
 end
 
@@ -109,31 +112,6 @@ function Saddlebag:tableLength(T)
     local count = 0
     for _ in pairs(T) do count = count + 1 end
     return count
-end
-
-function Saddlebag:tableToString(tbl)
-	local result = "{"
-	for k, v in pairs(tbl) do
-		-- Check the key type (ignore any numerical keys - assume its an array)
-		if type(k) == "string" then
-			result = result .. "[\"" .. k .. "\"]" .. "="
-		end
-
-		-- Check the value type
-		if type(v) == "table" then
-			result = result .. Saddlebag:tableToString(v)
-		elseif type(v) == "boolean" then
-			result = result .. tostring(v)
-		else
-			result = result .. "\"" .. v .. "\""
-		end
-		result = result .. ","
-	end
-	-- Remove leading commas from the result
-	if result ~= "{" then
-		result = result:sub(1, result:len() - 1)
-	end
-	return result .. "}"
 end
 
 function Saddlebag:SetupMultiSelect(multiSelect, auctions)
@@ -197,51 +175,14 @@ function Saddlebag:GetUpdatedListingsJson()
     local storage = {}
     if (Saddlebag:tableLength(clean_ownedAuctions) > 0)
     then
-        -- gets the auction id
-        -- print(ownedAuctions[1]["auctionID"])
-
-        -- doesnt work but it does show me the
-        -- print(table.concat(ownedAuctions))
-
-        -- loop through auctions
-        local output = "{\n"
-        output = output .. '    "homeRealmName": "' .. tostring(GetRealmID()) .. '",\n'
-        output = output .. '    "region": "' .. GetCurrentRegionName() .. '",\n'
         storage.homeRealmName = GetRealmID()
         storage.region = GetCurrentRegionName()
         storage.user_auctions = {}
 
         local count = 1
-        output = output .. '    "user_auctions": ['
         for _, v in pairs(clean_ownedAuctions) do
-            -- print('===view auction keys===')
-            -- print("auction keys")
-            -- for i, j in pairs(v) do
-            --     print(i)
-            -- end
-
-            -- print('---view itemKey keys---')
-            -- print("itemKey info")
-            -- for i, j in pairs(v["itemKey"]) do
-            --     print(i)
-            -- end
-            -- print()
-            -- print("itemID found!", v["itemKey"]["itemID"])
-            -- print("price found!", v["buyoutAmount"])
-
-            -- 0 if listed, 1 if sold
-            -- dont do 82800 for battle pets its all messy
-
-            -- can go back to this if we need to disable legacy
-            -- if (v["status"] == 0) and (v["itemKey"]["itemID"] ~= 82800) and (v["itemKey"]["itemID"] >= 185000)
-
-            local item_str
             if (not has_value(private.ignoredAuctions, v["auctionID"]))
             then
-                item_str = '\n        {"itemID": ' ..
-                    tostring(v["itemKey"]["itemID"]) ..
-                    ', "price": ' .. tostring(v["buyoutAmount"]) .. ', "auctionID": ' .. tostring(v["auctionID"]) .. '},'
-                output = output .. item_str
                 local item_data = {}
                 item_data.itemID = v["itemKey"]["itemID"]
                 item_data.price = v["buyoutAmount"]
@@ -249,10 +190,6 @@ function Saddlebag:GetUpdatedListingsJson()
                 storage.user_auctions[count] = item_data
             elseif (v["status"] == 0) and (v["itemKey"]["itemID"] == 82800)
             then
-                item_str = '\n        {"petID": ' ..
-                    tostring(v["itemKey"]["battlePetSpeciesID"]) ..
-                    ' ,"price": ' .. tostring(v["buyoutAmount"]) .. ', "auctionID": ' .. tostring(v["auctionID"]) .. '},'
-                output = output .. item_str
                 local item_data = {}
                 item_data.petID = v["itemKey"]["battlePetSpeciesID"]
                 item_data.price = v["buyoutAmount"]
@@ -261,18 +198,12 @@ function Saddlebag:GetUpdatedListingsJson()
             end
             count = count + 1
         end
-        -- remove last comma
-        output = output:sub(1, -2)
-        output = output .. "\n    ]\n"
-        output = output .. "}"
         -- add to saved variable
         UndercutJsonTable[playerName] = storage
         -- print(output)
-        return output
+        return dkjson.json.encode(storage, { indent = true })
     else
-        print(
-            "ERROR! Make sure you are at the auction house looking at your auctions before you click the button or run /sbex")
-        print("{}")
+        print("ERROR! Make sure you are at the auction house looking at your auctions before you click the button or run /sbex")
         return "{}"
     end
 end
@@ -282,7 +213,8 @@ function Saddlebag:handler(msg, SaddlebagEditBox)
     then
         message('Go to the auction house, view your auctions and then click the pop up button or run /sbex')
     else
-        local af = Saddlebag:auctionButton(Saddlebag:GetUpdatedListingsJson())
+        local af = Saddlebag:auctionButton("")
+        Saddlebag.sf:SetText(Saddlebag:GetUpdatedListingsJson())
         af:Show()
     end
 end
@@ -303,7 +235,6 @@ function Saddlebag:auctionButton(text)
         f.content:Raise()
         f:Hide()
         f:SetTitle(addonName)
-        f:SetCallback("OnClose", OnClose)
         f:SetLayout("Fill")
         f.frame:SetClampedToScreen(true)
         f:SetWidth(frameConfig.width)
@@ -395,6 +326,7 @@ function Saddlebag:auctionButton(text)
         sf:SetFullWidth(true)
         sf:SetText(text)
         sf:HighlightText()
+        Saddlebag.sf = sf
 
         -- setup and callbacks
         Saddlebag:SetupMultiSelect(li, Saddlebag:GetCleanAuctions())
