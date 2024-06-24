@@ -1,10 +1,14 @@
-## Interface: 100206
+## Interface: 100207, 110000
+## X-Min-Interface: 100207
 ## Title: Saddlebag Exchange
 ## Notes: Constructs undercut alerts
-## Author: indopan, Terise, berickus
-## Version: @project-version@
 ## OptionalDependencies: Ace3, LibRealmInfo, LibDBIcon, LibDataBroker-1.1
 ## SavedVariables: UndercutJsonTable
+## Author: indopan, Terise, berickus
+## Version: @project-version@
+## X-Curse-Project-ID: 738707
+## X-Wago-ID: kGr0Vr6y
+## X-Website: https://saddlebagexchange.com/wow
 
 embeds.xml
 
