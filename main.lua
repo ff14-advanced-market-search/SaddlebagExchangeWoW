@@ -184,14 +184,11 @@ function Saddlebag:GetUpdatedListingsJson()
             if (not has_value(private.ignoredAuctions, v["auctionID"]))
             then
                 local item_data = {}
-                item_data.itemID = v["itemKey"]["itemID"]
-                item_data.price = v["buyoutAmount"]
-                item_data.auctionID = v["auctionID"]
-                storage.user_auctions[count] = item_data
-            elseif (v["status"] == 0) and (v["itemKey"]["itemID"] == 82800)
-            then
-                local item_data = {}
-                item_data.petID = v["itemKey"]["battlePetSpeciesID"]
+                if v["itemKey"]["battlePetSpeciesID"] then
+                    item_data.petID = v["itemKey"]["battlePetSpeciesID"]
+                else
+                    item_data.itemID = v["itemKey"]["itemID"]
+                end
                 item_data.price = v["buyoutAmount"]
                 item_data.auctionID = v["auctionID"]
                 storage.user_auctions[count] = item_data
