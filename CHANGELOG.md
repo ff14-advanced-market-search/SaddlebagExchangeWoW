@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## v1.0.6
+### Changed
+ - Fixed petID issue
+ - Added esc handler
+
 ## v1.0.5
 ### Changed
  - Fixed export JSON for undercut alerts pet ids
