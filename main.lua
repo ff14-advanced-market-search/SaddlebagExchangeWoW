@@ -184,10 +184,10 @@ function Saddlebag:GetUpdatedListingsJson()
             if (not has_value(private.ignoredAuctions, v["auctionID"]))
             then
                 local item_data = {}
-                if v["itemKey"]["battlePetSpeciesID"] then
-                    item_data.petID = v["itemKey"]["battlePetSpeciesID"]
-                else
+                if v["itemKey"]["battlePetSpeciesID"] == 0 then
                     item_data.itemID = v["itemKey"]["itemID"]
+                else
+                    item_data.petID = v["itemKey"]["battlePetSpeciesID"]
                 end
                 item_data.price = v["buyoutAmount"]
                 item_data.auctionID = v["auctionID"]
@@ -237,6 +237,7 @@ function Saddlebag:auctionButton(text)
         f:SetWidth(frameConfig.width)
         f:SetHeight(frameConfig.height)
         f:SetAutoAdjustHeight(true)
+        Saddlebag:SetEscapeHandler(f, function() Saddlebag:auctionButton(""):Hide() end)
 
         -- load position from local DB
         f:SetPoint(
@@ -465,3 +466,22 @@ buttonPopUpFrame2:RegisterEvent("OWNED_AUCTIONS_UPDATED")
 buttonPopUpFrame2:SetScript("OnEvent", function()
     Saddlebag:GetUpdatedListingsJson()
 end)
+
+----------------------------------------------------------------------------------
+-- AceGUI hacks --
+
+-- hack to hook the escape key for closing the window
+function Saddlebag:SetEscapeHandler(widget, fn)
+	widget.origOnKeyDown = widget.frame:GetScript("OnKeyDown")
+	widget.frame:SetScript("OnKeyDown", function(self, key)
+		widget.frame:SetPropagateKeyboardInput(true)
+		if key == "ESCAPE" then
+			widget.frame:SetPropagateKeyboardInput(false)
+			fn()
+		elseif widget.origOnKeyDown then
+			widget.origOnKeyDown(self, key)
+		end
+	end)
+	widget.frame:EnableKeyboard(true)
+	widget.frame:SetPropagateKeyboardInput(true)
+end
