@@ -17,7 +17,7 @@ local private = {
 }
 
 local function has_value(tab, val)
-    for _, value in ipairs(tab) do
+    for _, value in pairs(tab) do
         if value == val then
             return true
         end
@@ -27,7 +27,7 @@ local function has_value(tab, val)
 end
 
 local function get_index(tab, val)
-    for index, value in ipairs(tab) do
+    for index, value in pairs(tab) do
         if value == val then
             return index
         end
@@ -64,7 +64,7 @@ end
 function Saddlebag:HandleChatCommand(input)
     local args = { strsplit(' ', input) }
 
-    for _, arg in ipairs(args) do
+    for _, arg in pairs(args) do
         if arg == 'help' then
             DEFAULT_CHAT_FRAME:AddMessage(
                 "Saddlebag: NYI"
@@ -105,7 +105,7 @@ end
 function Saddlebag:clear(msg, SaddlebagEditBox)
     UndercutJsonTable = {}
     Saddlebag.sf:SetText("")
-    print("Your auctions table has been cleared out.")
+    Saddlebag.Debug.Log("Your auctions table has been cleared out.")
 end
 
 function Saddlebag:tableLength(T)
@@ -115,17 +115,17 @@ function Saddlebag:tableLength(T)
 end
 
 function Saddlebag:SetupMultiSelect(multiSelect, auctions)
-    -- print("Setting up multiSelect with auctions "..Saddlebag:tableLength(auctions))
-    for _, item in ipairs(auctions) do
+    Saddlebag.Debug.Log("Setting up multiSelect with auctions "..Saddlebag:tableLength(auctions))
+    for _, item in pairs(auctions) do
         local itemName, _, _, _, _, _, _, _ = GetItemInfo(item["itemKey"]["itemID"])
-        -- print("Adding item "..itemName)
+        Saddlebag.Debug.Log("Adding item "..itemName)
         multiSelect:AddItem(itemName)
     end
 end
 
 function Saddlebag:GetCleanAuctions()
     local ownedAuctions = C_AuctionHouse.GetOwnedAuctions();
-    print("Found", Saddlebag:tableLength(ownedAuctions), "auctions.")
+    Saddlebag.Debug.Log("Found "..Saddlebag:tableLength(ownedAuctions).." auctions.")
 
     -- find active auctions
     local active_auctions = 0
@@ -134,12 +134,12 @@ function Saddlebag:GetCleanAuctions()
             active_auctions = active_auctions + 1
         end
     end
-    print("Found", tostring(active_auctions), "active auctions.")
+    Saddlebag.Debug.Log("Found "..tostring(active_auctions).." active auctions.")
 
     -- delete duplicate entries
     local seen = {}
     local clean_ownedAuctions = {}
-    for index, item in ipairs(ownedAuctions) do
+    for index, item in pairs(ownedAuctions) do
         -- skip sold auctions
         if item["status"] == 0 then
             local kv_str = tostring(item["itemKey"]["itemID"]) .. "_" .. tostring(item["buyoutAmount"])
@@ -150,7 +150,6 @@ function Saddlebag:GetCleanAuctions()
                 if seen[kv_str] then
                     table.remove(ownedAuctions, index)
                 else
-                    -- print(kv_str)
                     seen[kv_str] = true
                     clean_ownedAuctions[index] = item
                 end
@@ -158,6 +157,7 @@ function Saddlebag:GetCleanAuctions()
         end
     end
 
+    Saddlebag.Debug.Log("Found "..Saddlebag:tableLength(clean_ownedAuctions).." unique auctions.")
     return clean_ownedAuctions
 end
 
@@ -197,10 +197,9 @@ function Saddlebag:GetUpdatedListingsJson()
         end
         -- add to saved variable
         UndercutJsonTable[playerName] = storage
-        -- print(output)
         return dkjson.json.encode(storage, { indent = true })
     else
-        print("ERROR! Make sure you are at the auction house looking at your auctions before you click the button or run /sbex")
+        Saddlebag.Debug.Log("ERROR! Make sure you are at the auction house looking at your auctions before you click the button or run /sbex")
         return "{}"
     end
 end
@@ -329,7 +328,7 @@ function Saddlebag:auctionButton(text)
         -- setup and callbacks
         Saddlebag:SetupMultiSelect(li, Saddlebag:GetCleanAuctions())
         li:SetCallback("OnLabelClick", function(widget, event, value)
-            -- print("You clicked on the item " .. li:GetText(value))
+            Saddlebag.Debug.Log("You clicked on the item " .. li:GetText(value))
             ei:AddItem(li:GetText(value))
             table.insert(private.ignoredAuctions, private.auctions[get_index(private.itemNames, li:GetText(value))])
             li:RemoveItem(value)
@@ -338,7 +337,7 @@ function Saddlebag:auctionButton(text)
             ei:Sort()
         end)
         ei:SetCallback("OnLabelClick", function(widget, event, value)
-            -- print("You clicked on the item " .. ei:GetText(value))
+            Saddlebag.Debug.Log("You clicked on the item " .. ei:GetText(value))
             li:AddItem(ei:GetText(value))
             table.remove(private.ignoredAuctions, get_index(private.ignoredAuctions, private.auctions[get_index(private.itemNames, ei:GetText(value))]))
             ei:RemoveItem(value)
@@ -367,11 +366,11 @@ function Saddlebag:addonButton()
     addonButton:RegisterForDrag("LeftButton")
     addonButton:SetScript("OnDragStart", function(self, button)
         self:StartMoving()
-        -- print("OnDragStart", button)
+        Saddlebag.Debug.Log("OnDragStart", button)
     end)
     addonButton:SetScript("OnDragStop", function(self)
         self:StopMovingOrSizing()
-        -- print("OnDragStop")
+        Saddlebag.Debug.Log("OnDragStop")
     end)
 
     -- open main window on click
@@ -400,11 +399,11 @@ function Saddlebag:addonButton2()
     addonButton2:RegisterForDrag("LeftButton")
     addonButton2:SetScript("OnDragStart", function(self, button)
         self:StartMoving()
-        -- print("OnDragStart", button)
+        Saddlebag.Debug.Log("OnDragStart", button)
     end)
     addonButton2:SetScript("OnDragStop", function(self)
         self:StopMovingOrSizing()
-        -- print("OnDragStop")
+        Saddlebag.Debug.Log("OnDragStop")
     end)
 
     -- open main window on click
@@ -433,11 +432,11 @@ function Saddlebag:addonButton3()
     addonButton3:RegisterForDrag("LeftButton")
     addonButton3:SetScript("OnDragStart", function(self, button)
         self:StartMoving()
-        -- print("OnDragStart", button)
+        Saddlebag.Debug.Log("OnDragStart", button)
     end)
     addonButton3:SetScript("OnDragStop", function(self)
         self:StopMovingOrSizing()
-        -- print("OnDragStop")
+        Saddlebag.Debug.Log("OnDragStop")
     end)
 
     -- open main window on click

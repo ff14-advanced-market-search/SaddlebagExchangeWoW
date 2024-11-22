@@ -1,5 +1,5 @@
-## Interface: 100207, 110000
-## X-Min-Interface: 100207
+## Interface: 110005
+## X-Min-Interface: 110005
 ## Title: Saddlebag Exchange
 ## Notes: Constructs undercut alerts
 ## OptionalDependencies: Ace3, LibRealmInfo, LibDBIcon, LibDataBroker-1.1
@@ -11,5 +11,7 @@
 ## X-Website: https://saddlebagexchange.com/wow
 
 embeds.xml
+
+Core\Debug.lua
 
 main.lua
