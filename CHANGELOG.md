@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## v1.0.7
+### Changed
+ - Fixed pairs issue
+ - Added debug handling
+ - Updated ToC version
+
 ## v1.0.6
 ### Changed
  - Fixed petID issue
