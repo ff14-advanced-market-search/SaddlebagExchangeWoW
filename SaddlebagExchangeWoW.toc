@@ -1,5 +1,5 @@
-## Interface: 110005
-## X-Min-Interface: 110005
+## Interface: 110007
+## X-Min-Interface: 110007
 ## Title: Saddlebag Exchange
 ## Notes: Constructs undercut alerts
 ## OptionalDependencies: Ace3, LibRealmInfo, LibDBIcon, LibDataBroker-1.1
