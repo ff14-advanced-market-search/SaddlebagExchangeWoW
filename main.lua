@@ -9,6 +9,8 @@ local AceGUI = LibStub("AceGUI-3.0")
 LibRealmInfo = LibStub("LibRealmInfo")
 local dkjson = LibStub("dkjson")
 
+-- lets see if coderabbitt breaks stuff
+local foobar = nil
 local SaddlebagFrame = nil
 local private = {
     itemNames = {},
