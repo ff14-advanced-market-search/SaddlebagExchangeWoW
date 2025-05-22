@@ -12,19 +12,28 @@ local dkjson = LibStub("dkjson")
 local SaddlebagFrame = nil
 local private = {itemNames = {}, auctions = {}, ignoredAuctions = {}}
 
+---Checks if a table contains a specific value.
+---@param tab table The table to search.
+---@param val any The value to look for.
+---@return boolean True if the value is found in the table, false otherwise.
 local function has_value(tab, val)
     for _, value in pairs(tab) do if value == val then return true end end
 
     return false
 end
 
+---Returns the key of the first occurrence of a value in a table, or nil if not found.
+---@param tab table Table to search.
+---@param val any Value to find.
+---@return any|nil Key of the found value, or nil if not present.
 local function get_index(tab, val)
     for index, value in pairs(tab) do if value == val then return index end end
 
     return nil
 end
 
--- SLASH_SADDLEBAG1, SLASH_SADDLEBAG2, SLASH_SADDLEBAG3 = '/sbex', '/Saddlebag', '/Saddlebagexchange';
+---Initializes the Saddlebag addon, setting up saved variables and registering the chat command.
+function Saddlebag:OnInitialize()
 function Saddlebag:OnInitialize()
     -- init databroker
     self.db = LibStub("AceDB-3.0"):New("SaddlebagDB", {
@@ -47,6 +56,8 @@ function Saddlebag:OnInitialize()
     Saddlebag:RegisterChatCommand('sbex', 'HandleChatCommand')
 end
 
+---Handles the `/sbex` chat command, displaying help or showing all auction data.
+---@param input string The input string provided with the chat command.
 function Saddlebag:HandleChatCommand(input)
     local args = {strsplit(' ', input)}
 
@@ -60,6 +71,8 @@ function Saddlebag:HandleChatCommand(input)
     self:showall()
 end
 
+---Displays all entries in the UndercutJsonTable as formatted JSON in the UI text box and shows the auction button frame.
+---@remarks If UndercutJsonTable is empty or nil, displays an empty JSON array.
 function Saddlebag:showall()
     local output = ""
     if (UndercutJsonTable == nil) then
@@ -90,12 +103,18 @@ function Saddlebag:clear(msg, SaddlebagEditBox)
     Saddlebag.Debug.Log("Your auctions table has been cleared out.")
 end
 
+---Returns the number of entries in a table.
+---@param T table The table to count entries in.
+---@return number The number of key-value pairs in the table.
 function Saddlebag:tableLength(T)
     local count = 0
     for _ in pairs(T) do count = count + 1 end
     return count
 end
 
+---Populates a MultiSelect UI widget with item names from a list of auctions.
+---@param multiSelect table The MultiSelect widget to populate.
+---@param auctions table List of auction entries to extract item names from.
 function Saddlebag:SetupMultiSelect(multiSelect, auctions)
     Saddlebag.Debug.Log("Setting up multiSelect with auctions " ..
                             Saddlebag:tableLength(auctions))
@@ -107,6 +126,8 @@ function Saddlebag:SetupMultiSelect(multiSelect, auctions)
     end
 end
 
+---Retrieves the player's active auctions, removing duplicates for single-stack items.
+---@return table A table of unique, active auctions owned by the player, keyed by their original index. Only auctions with status 0 are included, and duplicate single-stack items (by item ID and buyout amount) are filtered out.
 function Saddlebag:GetCleanAuctions()
     local ownedAuctions = C_AuctionHouse.GetOwnedAuctions();
     Saddlebag.Debug.Log("Found " .. Saddlebag:tableLength(ownedAuctions) ..
@@ -149,6 +170,8 @@ function Saddlebag:GetCleanAuctions()
     return clean_ownedAuctions
 end
 
+---Generates and returns a JSON string containing the player's current active auctions, excluding ignored auctions.
+---@return string JSON-encoded data of the player's realm, region, and filtered auction listings, or an empty JSON object if no auctions are found.
 function Saddlebag:GetUpdatedListingsJson()
     local clean_ownedAuctions = Saddlebag:GetCleanAuctions()
 
@@ -188,6 +211,9 @@ function Saddlebag:GetUpdatedListingsJson()
     end
 end
 
+---Handles the `/sbex` chat command, displaying the auction data UI or showing help instructions.
+---@param msg string Command input argument; if "help", displays usage instructions.
+---@param SaddlebagEditBox any Unused parameter.
 function Saddlebag:handler(msg, SaddlebagEditBox)
     if msg == 'help' then
         message(
@@ -201,7 +227,16 @@ end
 
 SlashCmdList["SADDLEBAG"] = handler; -- Also a valid assignment strategy
 
--- easy button system
+---Creates and returns the main auction management UI frame for the addon.
+---@param text string Initial text to display in the JSON output box.
+---@return table The AceGUI frame representing the auction management window.
+---
+---This function creates (if not already created) and returns a movable AceGUI frame containing:
+--- - Two MultiSelect lists for managing included and excluded auctions.
+--- - Labels for moving items between lists.
+--- - A multi-line edit box displaying the current auction data as JSON.
+--- - Callbacks to update the lists and JSON output when items are moved.
+---The frame's position and size are saved and restored between sessions. The escape key closes the window.
 function Saddlebag:auctionButton(text)
     if not SaddlebagFrame then
         -- MainFrame
@@ -334,7 +369,8 @@ function Saddlebag:auctionButton(text)
     return SaddlebagFrame
 end
 
--- easy button system
+---Creates and displays a movable button on the Auction House frame to show single undercut auction data.
+---@details The button is labeled "Show Single Undercut Data" and appears at the top-right of the Auction House frame. When clicked, it triggers the display of the main auction data window. The button can be repositioned by dragging and automatically hides when the Auction House is closed.
 function Saddlebag:addonButton()
     local addonButton = CreateFrame("Button", "MyButton", UIParent,
                                     "UIPanelButtonTemplate")
@@ -367,6 +403,7 @@ function Saddlebag:addonButton()
     addonButton:SetScript("OnEvent", function() addonButton:Hide() end)
 end
 
+---Creates and displays a movable button labeled "View Full Undercut Data" anchored to the Auction House frame, which shows all undercut auction data when clicked. The button hides automatically when the Auction House is closed.
 function Saddlebag:addonButton2()
     local addonButton2 = CreateFrame("Button", "MyButton", UIParent,
                                      "UIPanelButtonTemplate")
@@ -399,6 +436,7 @@ function Saddlebag:addonButton2()
     addonButton2:SetScript("OnEvent", function() addonButton2:Hide() end)
 end
 
+---Creates and displays a movable "Clear All Data" button anchored to the Auction House frame, which clears all auction data when clicked and hides itself when the auction house closes.
 function Saddlebag:addonButton3()
     local addonButton3 = CreateFrame("Button", "MyButton", UIParent,
                                      "UIPanelButtonTemplate")
@@ -448,7 +486,9 @@ buttonPopUpFrame2:SetScript("OnEvent",
 ----------------------------------------------------------------------------------
 -- AceGUI hacks --
 
--- hack to hook the escape key for closing the window
+---Sets a custom handler to close the widget when the Escape key is pressed.
+---@param widget table AceGUI widget whose keydown behavior is being modified.
+---@param fn function Function to call when Escape is pressed.
 function Saddlebag:SetEscapeHandler(widget, fn)
     widget.origOnKeyDown = widget.frame:GetScript("OnKeyDown")
     widget.frame:SetScript("OnKeyDown", function(self, key)
