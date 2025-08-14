@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## v1.0.12
+### Changed
+ - Updated ToC version
+
 ## v1.0.11
 ### Changed
  - Updated ToC version
