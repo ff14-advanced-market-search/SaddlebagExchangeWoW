@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## v1.1.4
+### Changed
+ - Updated interface version
+
 ## v1.1.3
 ### Changed
  - Updated interface version
