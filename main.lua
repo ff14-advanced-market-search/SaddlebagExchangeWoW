@@ -1,37 +1,25 @@
 -- Now on Curseforge!
-
 -- message('Thanks for testing out Saddlebag Exchange WoW Undercut alerts! Use the commands: \n/sbex, /Saddlebag or /Saddlebagexchange')
 local _, Saddlebag = ...
 local addonName = "Saddlebag Exchange Undercut Alerts"
 
-Saddlebag = LibStub("AceAddon-3.0"):NewAddon(Saddlebag, "Saddlebag", "AceConsole-3.0", "AceEvent-3.0")
+Saddlebag = LibStub("AceAddon-3.0"):NewAddon(Saddlebag, "Saddlebag",
+                                             "AceConsole-3.0", "AceEvent-3.0")
 local AceGUI = LibStub("AceGUI-3.0")
 LibRealmInfo = LibStub("LibRealmInfo")
 local dkjson = LibStub("dkjson")
 
 local SaddlebagFrame = nil
-local private = {
-    itemNames = {},
-    auctions = {},
-    ignoredAuctions = {},
-}
+local private = {itemNames = {}, auctions = {}, ignoredAuctions = {}}
 
 local function has_value(tab, val)
-    for _, value in pairs(tab) do
-        if value == val then
-            return true
-        end
-    end
+    for _, value in pairs(tab) do if value == val then return true end end
 
     return false
 end
 
 local function get_index(tab, val)
-    for index, value in pairs(tab) do
-        if value == val then
-            return index
-        end
-    end
+    for index, value in pairs(tab) do if value == val then return index end end
 
     return nil
 end
@@ -41,9 +29,7 @@ function Saddlebag:OnInitialize()
     -- init databroker
     self.db = LibStub("AceDB-3.0"):New("SaddlebagDB", {
         profile = {
-            minimap = {
-                hide = false,
-            },
+            minimap = {hide = false},
             frame = {
                 point = "CENTER",
                 relativeFrame = nil,
@@ -51,9 +37,9 @@ function Saddlebag:OnInitialize()
                 ofsx = 0,
                 ofsy = 0,
                 width = 750,
-                height = 500,
-            },
-        },
+                height = 500
+            }
+        }
     });
     -- LibDBIcon:Register("Saddlebag Exchange", SaddlebagLDB, self.db.profile.minimap)
     -- Saddlebag:UpdateMinimapButton()
@@ -62,13 +48,11 @@ function Saddlebag:OnInitialize()
 end
 
 function Saddlebag:HandleChatCommand(input)
-    local args = { strsplit(' ', input) }
+    local args = {strsplit(' ', input)}
 
     for _, arg in pairs(args) do
         if arg == 'help' then
-            DEFAULT_CHAT_FRAME:AddMessage(
-                "Saddlebag: NYI"
-            )
+            DEFAULT_CHAT_FRAME:AddMessage("Saddlebag: NYI")
             return
         end
     end
@@ -78,17 +62,15 @@ end
 
 function Saddlebag:showall()
     local output = ""
-    if (UndercutJsonTable == nil)
-    then
+    if (UndercutJsonTable == nil) then
         output = output .. "[]"
     else
         output = output .. "["
         for _, v in pairs(UndercutJsonTable) do
-            output = output .. dkjson.json.encode(v, { indent = true }) .. ","
+            output = output .. dkjson.json.encode(v, {indent = true}) .. ","
         end
         -- if no data found
-        if (output == "[")
-        then
+        if (output == "[") then
             output = "[]"
         else
             -- remove last comma
@@ -115,26 +97,28 @@ function Saddlebag:tableLength(T)
 end
 
 function Saddlebag:SetupMultiSelect(multiSelect, auctions)
-    Saddlebag.Debug.Log("Setting up multiSelect with auctions "..Saddlebag:tableLength(auctions))
+    Saddlebag.Debug.Log("Setting up multiSelect with auctions " ..
+                            Saddlebag:tableLength(auctions))
     for _, item in pairs(auctions) do
-        local itemName, _, _, _, _, _, _, _ = GetItemInfo(item["itemKey"]["itemID"])
-        Saddlebag.Debug.Log("Adding item "..itemName)
+        local itemName, _, _, _, _, _, _, _ = GetItemInfo(
+                                                  item["itemKey"]["itemID"])
+        Saddlebag.Debug.Log("Adding item " .. itemName)
         multiSelect:AddItem(itemName)
     end
 end
 
 function Saddlebag:GetCleanAuctions()
     local ownedAuctions = C_AuctionHouse.GetOwnedAuctions();
-    Saddlebag.Debug.Log("Found "..Saddlebag:tableLength(ownedAuctions).." auctions.")
+    Saddlebag.Debug.Log("Found " .. Saddlebag:tableLength(ownedAuctions) ..
+                            " auctions.")
 
     -- find active auctions
     local active_auctions = 0
     for k, v in pairs(ownedAuctions) do
-        if v["status"] == 0 then
-            active_auctions = active_auctions + 1
-        end
+        if v["status"] == 0 then active_auctions = active_auctions + 1 end
     end
-    Saddlebag.Debug.Log("Found "..tostring(active_auctions).." active auctions.")
+    Saddlebag.Debug.Log("Found " .. tostring(active_auctions) ..
+                            " active auctions.")
 
     -- delete duplicate entries
     local seen = {}
@@ -142,8 +126,10 @@ function Saddlebag:GetCleanAuctions()
     for index, item in pairs(ownedAuctions) do
         -- skip sold auctions
         if item["status"] == 0 then
-            local kv_str = tostring(item["itemKey"]["itemID"]) .. "_" .. tostring(item["buyoutAmount"])
-            local itemName, _, _, _, _, _, _, itemStackCount = GetItemInfo(item["itemKey"]["itemID"])
+            local kv_str = tostring(item["itemKey"]["itemID"]) .. "_" ..
+                               tostring(item["buyoutAmount"])
+            local itemName, _, _, _, _, _, _, itemStackCount = GetItemInfo(
+                                                                   item["itemKey"]["itemID"])
             private.auctions[index] = item["auctionID"]
             private.itemNames[index] = itemName
             if itemStackCount == 1 then
@@ -157,7 +143,9 @@ function Saddlebag:GetCleanAuctions()
         end
     end
 
-    Saddlebag.Debug.Log("Found "..Saddlebag:tableLength(clean_ownedAuctions).." unique auctions.")
+    Saddlebag.Debug.Log(
+        "Found " .. Saddlebag:tableLength(clean_ownedAuctions) ..
+            " unique auctions.")
     return clean_ownedAuctions
 end
 
@@ -166,23 +154,18 @@ function Saddlebag:GetUpdatedListingsJson()
 
     -- used as key in the table
     local playerName = UnitName("player") .. tostring(GetRealmID())
-    if (UndercutJsonTable == nil)
-    then
-        UndercutJsonTable = {}
-    end
+    if (UndercutJsonTable == nil) then UndercutJsonTable = {} end
 
     -- get undercut if active auctions found
     local storage = {}
-    if (Saddlebag:tableLength(clean_ownedAuctions) > 0)
-    then
+    if (Saddlebag:tableLength(clean_ownedAuctions) > 0) then
         storage.homeRealmName = GetRealmID()
         storage.region = GetCurrentRegionName()
         storage.user_auctions = {}
 
         local count = 1
         for _, v in pairs(clean_ownedAuctions) do
-            if (not has_value(private.ignoredAuctions, v["auctionID"]))
-            then
+            if (not has_value(private.ignoredAuctions, v["auctionID"])) then
                 local item_data = {}
                 if v["itemKey"]["battlePetSpeciesID"] == 0 then
                     item_data.itemID = v["itemKey"]["itemID"]
@@ -197,17 +180,18 @@ function Saddlebag:GetUpdatedListingsJson()
         end
         -- add to saved variable
         UndercutJsonTable[playerName] = storage
-        return dkjson.json.encode(storage, { indent = true })
+        return dkjson.json.encode(storage, {indent = true})
     else
-        Saddlebag.Debug.Log("ERROR! Make sure you are at the auction house looking at your auctions before you click the button or run /sbex")
+        Saddlebag.Debug.Log(
+            "ERROR! Make sure you are at the auction house looking at your auctions before you click the button or run /sbex")
         return "{}"
     end
 end
 
 function Saddlebag:handler(msg, SaddlebagEditBox)
-    if msg == 'help'
-    then
-        message('Go to the auction house, view your auctions and then click the pop up button or run /sbex')
+    if msg == 'help' then
+        message(
+            'Go to the auction house, view your auctions and then click the pop up button or run /sbex')
     else
         local af = Saddlebag:auctionButton("")
         Saddlebag.sf:SetText(Saddlebag:GetUpdatedListingsJson())
@@ -236,22 +220,17 @@ function Saddlebag:auctionButton(text)
         f:SetWidth(frameConfig.width)
         f:SetHeight(frameConfig.height)
         f:SetAutoAdjustHeight(true)
-        Saddlebag:SetEscapeHandler(f, function() Saddlebag:auctionButton(""):Hide() end)
+        Saddlebag:SetEscapeHandler(f, function()
+            Saddlebag:auctionButton(""):Hide()
+        end)
 
         -- load position from local DB
-        f:SetPoint(
-            frameConfig.point,
-            frameConfig.relativeFrame,
-            frameConfig.relativePoint,
-            frameConfig.ofsx,
-            frameConfig.ofsy
-        )
+        f:SetPoint(frameConfig.point, frameConfig.relativeFrame,
+                   frameConfig.relativePoint, frameConfig.ofsx, frameConfig.ofsy)
         f:SetCallback("OnMouseDown", function(self, button) -- luacheck: ignore
-            if button == "LeftButton" then
-                self:StartMoving()
-            end
+            if button == "LeftButton" then self:StartMoving() end
         end)
-        f:SetCallback("OnMouseUp", function(self, _) --luacheck: ignore
+        f:SetCallback("OnMouseUp", function(self, _) -- luacheck: ignore
             self:StopMovingOrSizing()
             -- save position between sessions
             local point, relativeFrame, relativeTo, ofsx, ofsy = self:GetPoint()
@@ -330,7 +309,8 @@ function Saddlebag:auctionButton(text)
         li:SetCallback("OnLabelClick", function(widget, event, value)
             Saddlebag.Debug.Log("You clicked on the item " .. li:GetText(value))
             ei:AddItem(li:GetText(value))
-            table.insert(private.ignoredAuctions, private.auctions[get_index(private.itemNames, li:GetText(value))])
+            table.insert(private.ignoredAuctions, private.auctions[get_index(
+                             private.itemNames, li:GetText(value))])
             li:RemoveItem(value)
             sf:SetText(Saddlebag:GetUpdatedListingsJson())
             li:Sort()
@@ -339,7 +319,10 @@ function Saddlebag:auctionButton(text)
         ei:SetCallback("OnLabelClick", function(widget, event, value)
             Saddlebag.Debug.Log("You clicked on the item " .. ei:GetText(value))
             li:AddItem(ei:GetText(value))
-            table.remove(private.ignoredAuctions, get_index(private.ignoredAuctions, private.auctions[get_index(private.itemNames, ei:GetText(value))]))
+            table.remove(private.ignoredAuctions,
+                         get_index(private.ignoredAuctions,
+                                   private.auctions[get_index(private.itemNames,
+                                                              ei:GetText(value))]))
             ei:RemoveItem(value)
             sf:SetText(Saddlebag:GetUpdatedListingsJson())
             li:Sort()
@@ -353,7 +336,8 @@ end
 
 -- easy button system
 function Saddlebag:addonButton()
-    local addonButton = CreateFrame("Button", "MyButton", UIParent, "UIPanelButtonTemplate")
+    local addonButton = CreateFrame("Button", "MyButton", UIParent,
+                                    "UIPanelButtonTemplate")
     addonButton:SetFrameStrata("HIGH")
     addonButton:SetSize(180, 22) -- width, height
     addonButton:SetText("Show Single Undercut Data")
@@ -380,13 +364,12 @@ function Saddlebag:addonButton()
     end)
 
     addonButton:RegisterEvent("AUCTION_HOUSE_CLOSED")
-    addonButton:SetScript("OnEvent", function()
-        addonButton:Hide()
-    end)
+    addonButton:SetScript("OnEvent", function() addonButton:Hide() end)
 end
 
 function Saddlebag:addonButton2()
-    local addonButton2 = CreateFrame("Button", "MyButton", UIParent, "UIPanelButtonTemplate")
+    local addonButton2 = CreateFrame("Button", "MyButton", UIParent,
+                                     "UIPanelButtonTemplate")
     addonButton2:SetFrameStrata("HIGH")
     addonButton2:SetSize(180, 22) -- width, height
     addonButton2:SetText("View Full Undercut Data")
@@ -413,13 +396,12 @@ function Saddlebag:addonButton2()
     end)
 
     addonButton2:RegisterEvent("AUCTION_HOUSE_CLOSED")
-    addonButton2:SetScript("OnEvent", function()
-        addonButton2:Hide()
-    end)
+    addonButton2:SetScript("OnEvent", function() addonButton2:Hide() end)
 end
 
 function Saddlebag:addonButton3()
-    local addonButton3 = CreateFrame("Button", "MyButton", UIParent, "UIPanelButtonTemplate")
+    local addonButton3 = CreateFrame("Button", "MyButton", UIParent,
+                                     "UIPanelButtonTemplate")
     addonButton3:SetFrameStrata("HIGH")
     addonButton3:SetSize(120, 22) -- width, height
     addonButton3:SetText("Clear All Data")
@@ -446,9 +428,7 @@ function Saddlebag:addonButton3()
     end)
 
     addonButton3:RegisterEvent("AUCTION_HOUSE_CLOSED")
-    addonButton3:SetScript("OnEvent", function()
-        addonButton3:Hide()
-    end)
+    addonButton3:SetScript("OnEvent", function() addonButton3:Hide() end)
 end
 
 -- https://wowwiki-archive.fandom.com/wiki/Events/Names
@@ -462,25 +442,24 @@ end)
 
 local buttonPopUpFrame2 = CreateFrame("Frame")
 buttonPopUpFrame2:RegisterEvent("OWNED_AUCTIONS_UPDATED")
-buttonPopUpFrame2:SetScript("OnEvent", function()
-    Saddlebag:GetUpdatedListingsJson()
-end)
+buttonPopUpFrame2:SetScript("OnEvent",
+                            function() Saddlebag:GetUpdatedListingsJson() end)
 
 ----------------------------------------------------------------------------------
 -- AceGUI hacks --
 
 -- hack to hook the escape key for closing the window
 function Saddlebag:SetEscapeHandler(widget, fn)
-	widget.origOnKeyDown = widget.frame:GetScript("OnKeyDown")
-	widget.frame:SetScript("OnKeyDown", function(self, key)
-		widget.frame:SetPropagateKeyboardInput(true)
-		if key == "ESCAPE" then
-			widget.frame:SetPropagateKeyboardInput(false)
-			fn()
-		elseif widget.origOnKeyDown then
-			widget.origOnKeyDown(self, key)
-		end
-	end)
-	widget.frame:EnableKeyboard(true)
-	widget.frame:SetPropagateKeyboardInput(true)
+    widget.origOnKeyDown = widget.frame:GetScript("OnKeyDown")
+    widget.frame:SetScript("OnKeyDown", function(self, key)
+        widget.frame:SetPropagateKeyboardInput(true)
+        if key == "ESCAPE" then
+            widget.frame:SetPropagateKeyboardInput(false)
+            fn()
+        elseif widget.origOnKeyDown then
+            widget.origOnKeyDown(self, key)
+        end
+    end)
+    widget.frame:EnableKeyboard(true)
+    widget.frame:SetPropagateKeyboardInput(true)
 end
