@@ -192,8 +192,8 @@ function Saddlebag:GetUpdatedListingsJson()
                 item_data.price = v["buyoutAmount"]
                 item_data.auctionID = v["auctionID"]
                 storage.user_auctions[count] = item_data
+                count = count + 1
             end
-            count = count + 1
         end
         -- add to saved variable
         UndercutJsonTable[playerName] = storage
