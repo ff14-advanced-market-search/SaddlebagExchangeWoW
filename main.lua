@@ -104,7 +104,9 @@ end
 
 function Saddlebag:clear(msg, SaddlebagEditBox)
     UndercutJsonTable = {}
-    Saddlebag.sf:SetText("")
+    if Saddlebag.sf then
+        Saddlebag.sf:SetText("")
+    end
     Saddlebag.Debug.Log("Your auctions table has been cleared out.")
 end
 
