@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## v1.1.6
+### Fixed
+ - Fixed nil `sf` crash when "Clear All Data" is clicked before opening the main window
+
 ## v1.1.5
 ### Changed
  - Fixed wrong counter
