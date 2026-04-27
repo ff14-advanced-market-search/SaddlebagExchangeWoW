@@ -60,3 +60,34 @@ This will clear out all data and then you will need to check all your auctions a
 
 If you have further issues contact us on [discord](https://discord.gg/Pbp5xhmBJ7).
 
+# Release Process
+
+**1. Update `CHANGELOG.md`**
+
+Example add a new entry for the fix (i.e. `v1.1.6`):
+
+```markdown
+## v1.1.6
+### Fixed
+ - Fixed nil `sf` crash when "Clear All Data" is clicked before opening the main window
+```
+
+**2. Create and push a git tag**
+
+```bash
+git add CHANGELOG.md
+git commit -am "Bump to v1.1.6"
+git tag v1.1.6
+git push origin main
+git push origin v1.1.6
+```
+
+**3. That's it — the workflow fires automatically**
+
+The `release.yml` workflow triggers on any tag push and:
+- Runs `BigWigsMods/packager`, which replaces `@project-version@` in the TOC with your tag name (`v1.1.6`)
+- Uploads the packaged addon to **CurseForge** (via `CF_API_KEY`), **Wago** (via `WAGO_API_TOKEN`), and creates a **GitHub Release** automatically
+
+You can also trigger it manually from the **Actions tab → "Package and release" → "Run workflow"** if needed (via `workflow_dispatch`), but that won't have a tag version, so using a git tag is preferred.
+
+
