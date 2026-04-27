@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## v1.2.0
+### Changed
+ - Update Ace3 addons
+ - Bump interface version
+
 ## v1.1.5
 ### Changed
  - Fixed wrong counter
