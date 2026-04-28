@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## v1.2.1
+### Changed
+ - Fix library issue
+
 ## v1.2.0
 ### Changed
  - Update Ace3 addons
