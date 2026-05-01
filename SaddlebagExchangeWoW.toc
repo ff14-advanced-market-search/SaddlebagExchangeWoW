@@ -2,7 +2,7 @@
 ## Title: Saddlebag Exchange
 ## Notes: Constructs undercut alerts
 ## OptionalDependencies: Ace3, LibRealmInfo, LibDBIcon, LibDataBroker-1.1
-## SavedVariables: UndercutJsonTable
+## SavedVariables: UndercutJsonTable, SaddlebagDB
 ## Author: indopan, Terise, berickus
 ## Version: @project-version@
 ## X-Curse-Project-ID: 738707
@@ -12,5 +12,6 @@
 embeds.xml
 
 Core\Debug.lua
+Core\ThrottleMonitor.lua
 
 main.lua
