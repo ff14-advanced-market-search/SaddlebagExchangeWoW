@@ -1,4 +1,4 @@
-## Interface: 120007
+## Interface: 120100
 ## Title: Saddlebag Exchange
 ## Notes: Constructs undercut alerts
 ## OptionalDependencies: Ace3, LibRealmInfo, LibDBIcon, LibDataBroker-1.1
