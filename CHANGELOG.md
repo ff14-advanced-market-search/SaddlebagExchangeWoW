@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## v1.3.0
+### Changed
+ - Updated Ace3 libraries (AceGUI checkbox desaturation and slider text fixes)
+ - Updated LibDBIcon-1.0 to r56
+ - Embedded libraries are now fetched at build time via .pkgmeta externals
+
 ## v1.2.3
 ### Changed
  - Updated interface version

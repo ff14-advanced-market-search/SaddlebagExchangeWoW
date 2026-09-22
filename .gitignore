@@ -3,3 +3,10 @@
 
 #Ignore cursor AI rules
 .cursor/rules/codacy.mdc
+
+# Libraries fetched by the packager (.pkgmeta externals) -- see ../sync-libs.sh
+Libs/**
+!Libs/dkjson/
+!Libs/dkjson/**
+!Libs/MultiSelect/
+!Libs/MultiSelect/**
