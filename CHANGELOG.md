@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## v1.3.1
+### Changed
+ - Updated interface version to 120105
+
+### Fixed
+ - Fixed `attempt to call a nil value` error in main.lua caused by the removed global `GetItemInfo` (now uses `C_Item.GetItemInfo`)
+
 ## v1.3.0
 ### Changed
  - Updated Ace3 libraries (AceGUI checkbox desaturation and slider text fixes)

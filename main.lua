@@ -119,7 +119,7 @@ end
 function Saddlebag:SetupMultiSelect(multiSelect, auctions)
     Saddlebag.Debug.Log("Setting up multiSelect with auctions "..Saddlebag:tableLength(auctions))
     for _, item in pairs(auctions) do
-        local itemName, _, _, _, _, _, _, _ = GetItemInfo(item["itemKey"]["itemID"])
+        local itemName, _, _, _, _, _, _, _ = C_Item.GetItemInfo(item["itemKey"]["itemID"])
         Saddlebag.Debug.Log("Adding item "..itemName)
         multiSelect:AddItem(itemName)
     end
@@ -145,7 +145,7 @@ function Saddlebag:GetCleanAuctions()
         -- skip sold auctions
         if item["status"] == 0 then
             local kv_str = tostring(item["itemKey"]["itemID"]) .. "_" .. tostring(item["buyoutAmount"])
-            local itemName, _, _, _, _, _, _, itemStackCount = GetItemInfo(item["itemKey"]["itemID"])
+            local itemName, _, _, _, _, _, _, itemStackCount = C_Item.GetItemInfo(item["itemKey"]["itemID"])
             private.auctions[index] = item["auctionID"]
             private.itemNames[index] = itemName
             if itemStackCount == 1 then
